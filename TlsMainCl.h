@@ -8,6 +8,10 @@
 // https://www.gnu.org/licenses/gpl-3.0.html
 
 
+// For information and guides see:
+// https://ericssourcecode.github.io/
+
+
 
 
 #pragma once

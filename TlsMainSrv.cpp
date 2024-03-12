@@ -456,6 +456,10 @@ for( Int32 count = 0; count < 100; count++ )
       setTestVecServerCertVerify( outBuf );
       tlsMain.setCertVerifyMsg( outBuf );
 
+      CharBuf finished;
+      encryptTls.makeSrvFinishedMsg( tlsMain,
+                                     finished );
+
       outBuf.clear();
       setTestVecServerFinished( outBuf );
       tlsMain.setSrvWriteFinishedMsg( outBuf );

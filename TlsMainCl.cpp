@@ -8,6 +8,11 @@
 // https://www.gnu.org/licenses/gpl-3.0.html
 
 
+
+// For information and guides see:
+// https://ericssourcecode.github.io/
+
+
 #include "TlsMainCl.h"
 #include "../CppBase/StIO.h"
 
@@ -346,6 +351,13 @@ for( Int32 count = 0; count < 100; count++ )
     // Just received the Server's Finished
     // Message, so send the client's
     // Finished message.
+
+
+    // CharBuf finished;
+    // encryptTls.makeClFinishedMsg( tlsMain,
+    //                              finished );
+
+    // sendFinishedMsg();
 
     if( !sendTestVecFinished())
       return -1;

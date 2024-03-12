@@ -9,6 +9,11 @@
 
 
 
+// For information and guides see:
+// https://ericssourcecode.github.io/
+
+
+
 #pragma once
 
 
@@ -93,11 +98,6 @@ class EncryptTls
     {
     srvWriteRecSequence = 0;
     }
-
-  void makeMsgTranscript2(
-                       CharBuf& transcript,
-                       TlsMain& tlsMain );
-
 
 
   public:
@@ -217,7 +217,7 @@ class EncryptTls
                      const CharBuf& cipherBuf,
                      CharBuf& plainBuf );
 
-  void makeClFinishedMsg( TlsMain& tlsMain,
+  void makeSrvFinishedMsg( TlsMain& tlsMain,
                           CharBuf& finished );
 
   };
