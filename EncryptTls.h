@@ -46,6 +46,9 @@ class EncryptTls
   Integer servPubKey;
   AesGalois aesClientWrite;
   AesGalois aesServerWrite;
+  CharBuf clHsTraffic;
+  CharBuf srvHsTraffic;
+
 
   void extract( CharBuf& prk,
                 const CharBuf& salt,
@@ -218,6 +221,9 @@ class EncryptTls
                      CharBuf& plainBuf );
 
   void makeSrvFinishedMsg( TlsMain& tlsMain,
+                          CharBuf& finished );
+
+  void makeClFinishedMsg( TlsMain& tlsMain,
                           CharBuf& finished );
 
   };

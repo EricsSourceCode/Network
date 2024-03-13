@@ -42,8 +42,6 @@ class TlsMain
   CharBuf certVerifyMsg;
   CharBuf clWriteFinishedMsg;
   CharBuf srvWriteFinishedMsg;
-  CharBuf clHsTraffic;
-  CharBuf srvHsTraffic;
 
   public:
   //  0x8000 is 2^15.
@@ -242,28 +240,6 @@ class TlsMain
     {
     toGet.copy( srvWriteFinishedMsg );
     }
-
-
-  void getClHsTraffic( CharBuf& toGet ) const
-    {
-    toGet.copy( clHsTraffic );
-    }
-
-  void getSrvHsTraffic( CharBuf& toGet ) const
-    {
-    toGet.copy( srvHsTraffic );
-    }
-
-  void setClHsTraffic( const CharBuf& toSet )
-    {
-    clHsTraffic.copy( toSet );
-    }
-
-  void setSrvHsTraffic( const CharBuf& toSet )
-    {
-    srvHsTraffic.copy( toSet );
-    }
-
 
 
   // RFC 8446 Section 5.3.

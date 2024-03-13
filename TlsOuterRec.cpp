@@ -205,3 +205,26 @@ StIO::putLF();
 
 return msgLength + 5;
 }
+
+
+
+=====
+void TlsOuterRec::makeEncryptedRec(
+                       CharBuf& toSend,
+                       const CharBuf& message )
+{
+toSend.clear();
+toSend.appendU8( TlsOuterRec::ApplicationData );
+
+// The bytes at positions 1 and 2 are legacy
+// version numbers, and they are ignored.
+toSend.appendU8( 3 );
+toSend.appendU8( 3 );
+
+Int32 length = message.getLast();
+
+toSend.appendU8( (length >> 8) & 0xFF );
+toSend.appendU8( length & 0xFF );
+
+}
+

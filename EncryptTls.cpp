@@ -12,6 +12,7 @@
 #include "EncryptTls.h"
 #include "../CppBase/StIO.h"
 #include "TlsOuterRec.h"
+#include "Handshake.h"
 
 
 
@@ -38,15 +39,15 @@ void EncryptTls::expand( CharBuf& T1,
                         const CharBuf& info )
                         // const Int32 L )
 {
-StIO::putS( "\n\n\nTop of expand." );
+// StIO::putS( "\n\n\nTop of expand." );
 
-StIO::putS( "info:" );
-info.showHex();
-StIO::putLF();
+// StIO::putS( "info:" );
+// info.showHex();
+// StIO::putLF();
 
-StIO::putS( "prk:" );
-prk.showHex();
-StIO::putLF();
+// StIO::putS( "prk:" );
+// prk.showHex();
+// StIO::putLF();
 
 
 // okm: Output Key Material
@@ -105,7 +106,7 @@ sha256.hMac( T1, prk, T );
 
 // sha256.hMac( T3, prk, T );
 
-StIO::putS( "End of expand.\n\n" );
+// StIO::putS( "End of expand.\n\n" );
 }
 
 
@@ -115,7 +116,7 @@ void EncryptTls::hkdfExpandLabel( CharBuf& outBuf,
                        const CharBuf& context,
                        const Int32 length )
 {
-StIO::putS( "\n\nTop of hkdfExpandLabel." );
+// StIO::putS( "\n\nTop of hkdfExpandLabel." );
 
 // RFC 8446 Section 7.1
 
@@ -154,7 +155,7 @@ expand( T1, secret, hkdfLabel ); // , length );
 
 outBuf.copy( T1 );
 
-StIO::putS( "End of hkdfExpandLabel.\n\n" );
+// StIO::putS( "End of hkdfExpandLabel.\n\n" );
 }
 
 
@@ -164,13 +165,15 @@ void EncryptTls::deriveSecret( CharBuf& outBuf,
                      const CharBuf& label,
                      const CharBuf& messages )
 {
+// See sha256.makeHash();
+
 CharBuf msgHash;
 sha256.processAllBlocks( messages );
 sha256.getHash( msgHash );
 
-StIO::putS( "derivedSecret() hash: " );
-msgHash.showHex();
-StIO::putLF();
+// StIO::putS( "derivedSecret() hash: " );
+// msgHash.showHex();
+// StIO::putLF();
 
 // HKDF-Expand-Label(Secret, Label,
 //            Transcript-Hash(Messages),
@@ -275,10 +278,7 @@ msgHash.appendCharBuf( srvHelloMsg );
 deriveSecret( outBuf, prk, "c hs traffic",
                                   msgHash );
 
-CharBuf clHsTraffic;
 clHsTraffic.copy( outBuf );
-
-tlsMain.setClHsTraffic( clHsTraffic );
 
 StIO::putS( "c hs traffic:" );
 clHsTraffic.showHex();
@@ -288,13 +288,10 @@ outBuf.clear();
 deriveSecret( outBuf, prk, "s hs traffic",
                                   msgHash );
 
-CharBuf srvHsTraffic;
 srvHsTraffic.copy( outBuf );
 StIO::putS( "s hs traffic:" );
 srvHsTraffic.showHex();
 StIO::putLF();
-
-tlsMain.setSrvHsTraffic( srvHsTraffic );
 
 outBuf.clear();
 // Derive-Secret(., "derived", "")
@@ -778,7 +775,6 @@ aesClientWrite.decryptCharBuf(
 }
 
 
-
 void EncryptTls::makeSrvFinishedMsg(
                            TlsMain& tlsMain,
                            CharBuf& finished )
@@ -791,7 +787,8 @@ StIO::putS( "makeSrvFinishedMsg()." );
 
 CharBuf context;
 
-// Concatenate these messages together.
+// Concatenate these messages together
+// for the context.
 CharBuf clHelloMsg;
 CharBuf srvHelloMsg;
 CharBuf encExtenMsg;
@@ -849,37 +846,32 @@ StIO::putS( "=============" );
 context.copy( clHelloMsg );
 context.appendCharBuf( srvHelloMsg );
 context.appendCharBuf( encExtenMsg );
-
-//          Transcript-Hash(Handshake Context,
-//                      Certificate*,
-//                      CertificateVerify*))
-
 context.appendCharBuf( certificateMsg );
 context.appendCharBuf( certVerifyMsg );
 
 
 CharBuf baseKey;
-tlsMain.getSrvHsTraffic( baseKey );
+baseKey.copy( srvHsTraffic );
 
-StIO::putS( "Base Key:" );
-baseKey.showHex();
-StIO::putLF();
+// StIO::putS( "Base Key:" );
+// baseKey.showHex();
+// StIO::putLF();
 
 CharBuf finishedKey;
 hkdfExpandLabel( finishedKey, baseKey,
                  "finished", "",
                  Sha256::HashSize );
 
-StIO::putS( "finishedKey:" );
-finishedKey.showHex();
-StIO::putLF();
+// StIO::putS( "finishedKey:" );
+// finishedKey.showHex();
+// StIO::putLF();
 
 CharBuf transcriptHash;
 sha256.makeHash( transcriptHash, context );
 
-StIO::putS( "Hash for makeHash():" );
-sha256.showHash();
-StIO::putS( "\n\n" );
+// StIO::putS( "Hash for makeHash():" );
+// sha256.showHash();
+// StIO::putS( "\n\n" );
 
 CharBuf verifyData;
 sha256.hMac( verifyData, finishedKey,
@@ -891,44 +883,147 @@ StIO::putLF();
 
 finished.copy( verifyData );
 
-
-// verify_data =
-//          HMAC(finishedKey,
-//          Transcript-Hash(Handshake Context,
-//                      Certificate*,
-//                      CertificateVerify*))
-//   * Only included if present.
-
-
-//   The following table defines the Handshake
-//   Context and MAC Base Key
-//   for each scenario:
-
-//   | Mode      | Handshake Context       |
-//       Base Key                    |
-
-//   | Server    | ClientHello ... later
-//   | server_handshake_traffic_   |
-//   |           | of EncryptedExtensions/ |
-// secret                      |
-//   |           | CertificateRequest      |
-//                             |
-//   |           |                         |
-//                             |
-//   | Client    | ClientHello ... later   |
-// client_handshake_traffic_   |
-//   |           | of server               |
-// secret                      |
-//   |           | Finished/EndOfEarlyData |
-//                             |
-//   |           |                         |
-//                             |
-//   | Post-     | ClientHello ... client  |
-// client_application_traffic_ |
-//  | Handshake | Finished +              |
-// secret_N                    |
-//    |           | CertificateRequest      |
+// Put these bytes in front of it to make
+// the Handshake record.
+//      Finished (36 octets):  14 00 00 20
+// Then save that message:
+// tlsMain.setSrvWriteFinishedMsg(
+//                        srvWriteFinishedMsg );
 
 StIO::putS( "End of makeSrvFinishedMsg()." );
+StIO::putS( "\n\n\n" );
+}
+
+
+
+void EncryptTls::makeClFinishedMsg(
+                           TlsMain& tlsMain,
+                           CharBuf& finished )
+{
+// RFC 8446 section-4.4.4
+// Finished
+
+StIO::putS( "\n\n\n=============" );
+StIO::putS( "makeClFinishedMsg()." );
+
+CharBuf context;
+
+// Concatenate these messages together
+// for the context.
+CharBuf clHelloMsg;
+CharBuf srvHelloMsg;
+CharBuf encExtenMsg;
+CharBuf certificateMsg;
+CharBuf certVerifyMsg;
+CharBuf srvWriteFinishedMsg;
+CharBuf clWriteFinishedMsg;
+
+tlsMain.getClientHelloMsg( clHelloMsg );
+tlsMain.getServerHelloMsg( srvHelloMsg );
+tlsMain.getEncExtenMsg( encExtenMsg );
+tlsMain.getCertificateMsg( certificateMsg );
+tlsMain.getCertVerifyMsg( certVerifyMsg );
+tlsMain.getSrvWriteFinishedMsg(
+                        srvWriteFinishedMsg );
+
+// tlsMain.getClWriteFinishedMsg(
+//                        clWriteFinishedMsg );
+
+
+StIO::putS( "=============" );
+
+StIO::putS( "clHelloMsg:" );
+clHelloMsg.showHex();
+StIO::putLF();
+
+StIO::putS( "srvHelloMsg:" );
+srvHelloMsg.showHex();
+StIO::putLF();
+
+StIO::putS( "encExtenMsg:" );
+encExtenMsg.showHex();
+StIO::putLF();
+
+StIO::putS( "certificateMsg:" );
+certificateMsg.showHex();
+StIO::putLF();
+
+StIO::putS( "certVerifyMsg:" );
+certVerifyMsg.showHex();
+StIO::putLF();
+
+StIO::putS( "srvWriteFinishedMsg:"  );
+srvWriteFinishedMsg.showHex();
+StIO::putLF();
+
+StIO::putS( "clWriteFinishedMsg:" );
+clWriteFinishedMsg.showHex();
+StIO::putLF();
+StIO::putS( "=============" );
+
+
+
+context.copy( clHelloMsg );
+context.appendCharBuf( srvHelloMsg );
+context.appendCharBuf( encExtenMsg );
+context.appendCharBuf( certificateMsg );
+context.appendCharBuf( certVerifyMsg );
+context.appendCharBuf( srvWriteFinishedMsg );
+
+CharBuf baseKey;
+baseKey.copy( clHsTraffic );
+
+// StIO::putS( "Base Key:" );
+// baseKey.showHex();
+// StIO::putLF();
+
+CharBuf finishedKey;
+hkdfExpandLabel( finishedKey, baseKey,
+                 "finished", "",
+                 Sha256::HashSize );
+
+// StIO::putS( "finishedKey:" );
+// finishedKey.showHex();
+// StIO::putLF();
+
+CharBuf transcriptHash;
+sha256.makeHash( transcriptHash, context );
+
+// StIO::putS( "Hash for makeHash():" );
+// sha256.showHash();
+// StIO::putS( "\n\n" );
+
+CharBuf verifyData;
+sha256.hMac( verifyData, finishedKey,
+                         transcriptHash );
+
+StIO::putS( "verifyData:" );
+verifyData.showHex();
+StIO::putLF();
+
+
+
+finished.clear();
+
+// Put these bytes in front of it to make
+// the Handshake record.
+
+// 0x14
+finished.appendU8( Handshake::FinishedID );
+// Length bytes:
+finished.appendU8( 0x00 );
+finished.appendU8( 0x00 );
+finished.appendU8( 0x20 );
+
+finished.appendCharBuf( verifyData );
+
+// Then save that message:
+tlsMain.setClWriteFinishedMsg( finished );
+
+StIO::putS( "Finished Msg:" );
+finished.showHex();
+StIO::putLF();
+
+StIO::putS( "End of makeClFinishedMsg()." );
 StIO::putS( "\n\n\n" );
 }
