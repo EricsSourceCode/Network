@@ -207,7 +207,7 @@ return msgLength + 5;
 }
 
 
-
+/*
 =====
 void TlsOuterRec::makeEncryptedRec(
                        CharBuf& toSend,
@@ -227,4 +227,4 @@ toSend.appendU8( (length >> 8) & 0xFF );
 toSend.appendU8( length & 0xFF );
 
 }
-
+*/

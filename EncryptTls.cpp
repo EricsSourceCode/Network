@@ -655,24 +655,24 @@ StIO::putLF();
 
 
 
-/*
-void EncryptTls::srvWriteEncryptCharBuf(
-                    const CharBuf& plainBuf,
-                    CharBuf& cipherBuf )
-{
-aesServerWrite.encryptCharBuf(
-                          plainBuf,
-                          IV,
-                          aaData,
-                          cipherBuf );
-}
-*/
-
-
 void EncryptTls::srvWriteDecryptCharBuf(
                      const CharBuf& cipherBuf,
                      CharBuf& plainBuf )
 {
+// RFC 8446 Section 5.2
+// Record Payload Protection
+
+// RFC 8446 Section 5.3.
+// Set the per-record nonce.
+
+// The plain text contains this:
+// struct {
+//  opaque content[TLSPlaintext.length];
+//  ContentType type;
+//   uint8 zeros[length_of_padding];
+// } TLSInnerPlaintext;
+
+
 Uint64 sequence = getClWriteRecSequence();
 
 // Increment the sequence for the next
@@ -713,21 +713,6 @@ aesServerWrite.decryptCharBuf(
 
 }
 
-
-/*
-void EncryptTls::clWriteEncryptCharBuf(
-                    const CharBuf& plainBuf,
-                    const CharBuf& IV,
-                    const CharBuf& aaData,
-                    CharBuf& cipherBuf )
-{
-aesClientWrite.encryptCharBuf(
-                          plainBuf,
-                          IV,
-                          aaData,
-                          cipherBuf );
-}
-*/
 
 
 void EncryptTls::clWriteDecryptCharBuf(
@@ -1027,3 +1012,96 @@ StIO::putLF();
 StIO::putS( "End of makeClFinishedMsg()." );
 StIO::putS( "\n\n\n" );
 }
+
+
+
+void EncryptTls::clWriteMakeOuterRec(
+                       const CharBuf& plainBuf,
+                       CharBuf& outerRecBuf )
+{
+// RFC 8446 Section 5.2
+// Record Payload Protection
+
+// RFC 8446 Section 5.3.
+// Set the per-record nonce.
+
+// The plain text contains this:
+// struct {
+//  opaque content[TLSPlaintext.length];
+//  ContentType type;
+//   uint8 zeros[length_of_padding];
+// } TLSInnerPlaintext;
+
+outerRecBuf.clear();
+const Int32 plainLast = plainBuf.getLast();
+if( plainLast < 5 )
+  return;
+
+Uint8 recType = plainBuf.getU8( 0 );
+
+CharBuf innerPlain; // TLSInnerPlaintext
+innerPlain.copy( plainBuf );
+innerPlain.appendU8( recType );
+
+// Append any number of zeros for padding.
+// innerPlain.appendU8( 0 );
+
+
+Uint64 sequence = getClWriteRecSequence();
+
+// Increment the sequence for the next
+// record.
+incrementClWriteRecSequence();
+
+CharBuf sequenceBuf;
+sequenceBuf.fillBytes( 0, 4 );
+
+// Big endian.
+sequenceBuf.appendU64( sequence );
+
+if( sequenceBuf.getLast() != 12 )
+throw "sequenceBuf != 12 bytes.";
+
+CharBuf statClWriteIV;
+getStaticClWriteIV( statClWriteIV );
+
+sequenceBuf.xorFrom( statClWriteIV );
+
+CharBuf additionalData;
+additionalData.appendU8(
+             TlsOuterRec::ApplicationData );
+additionalData.appendU8( 3 );
+additionalData.appendU8( 3 );
+
+Int32 lengthRec = innerPlain.getLast();
+Uint8 highByte = (lengthRec >> 8) & 0xFF;
+Uint8 lowByte = lengthRec & 0xFF;
+additionalData.appendU8( highByte );
+additionalData.appendU8( lowByte );
+
+CharBuf cipherBuf; 
+aesClientWrite.encryptCharBuf(
+                      innerPlain,
+                      sequenceBuf, // IV,
+                      additionalData, // aaData,
+                      cipherBuf );
+
+outerRecBuf.appendU8(
+             TlsOuterRec::ApplicationData );
+outerRecBuf.appendU8( 3 );
+outerRecBuf.appendU8( 3 );
+
+lengthRec = cipherBuf.getLast();
+highByte = (lengthRec >> 8) & 0xFF;
+lowByte = lengthRec & 0xFF;
+outerRecBuf.appendU8( highByte );
+outerRecBuf.appendU8( lowByte );
+
+outerRecBuf.appendCharBuf( cipherBuf );
+
+StIO::putS( "\n\nclWriteMakeOuterRec()" );
+outerRecBuf.showHex();
+StIO::putS( "\n\n" );
+}
+
+

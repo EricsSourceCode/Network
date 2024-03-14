@@ -96,8 +96,4 @@ class TlsOuterRec
     return recordType;
     }
 
-  void makeEncryptedRec( CharBuf& toSend,
-                   const CharBuf& message );
-
-
   };

@@ -102,79 +102,6 @@ class EncryptTls
     srvWriteRecSequence = 0;
     }
 
-
-  public:
-  EncryptTls( void )
-    {
-    // aesServerWrite.encryptTest();
-    }
-
-  EncryptTls( const EncryptTls& in )
-    {
-    if( in.testForCopy )
-      return;
-
-    throw "EncryptTls copy constructor.";
-    }
-
-  ~EncryptTls( void )
-    {
-    }
-
-
-  void setDiffHelmOnClient( TlsMain& tlsMain,
-                            Integer& sharedS );
-
-  void setDiffHelmOnServer( TlsMain& tlsMain,
-                            Integer& sharedS );
-
-  void setHandshakeKeys(
-                     TlsMain& tlsMain,
-                     Integer& sharedS );
-
-  void setAppDataKeys( TlsMain& tlsMain );
-
-  void setClientPubKey( const Integer& toSet )
-    {
-    clientPubKey.copy( toSet );
-    }
-
-  void getClientPubKey( Integer& toGet ) const
-    {
-    toGet.copy( clientPubKey );
-    }
-
-  void setClientPrivKey(
-                        const Integer& toSet )
-    {
-    clientPrivKey.copy( toSet );
-    }
-
-  void getClientPrivKey( Integer& toGet ) const
-    {
-    toGet.copy( clientPrivKey );
-    }
-
-  void setSrvPubKey( const Integer& toSet )
-    {
-    servPubKey.copy( toSet );
-    }
-
-  void getSrvPubKey( Integer& toGet ) const
-    {
-    toGet.copy( servPubKey );
-    }
-
-  void setSrvPrivKey( const Integer& toSet )
-    {
-    servPrivKey.copy( toSet );
-    }
-
-  void getSrvPrivKey( Integer& toGet ) const
-    {
-    toGet.copy( servPrivKey );
-    }
-
   void setStaticClWriteIV( const CharBuf& toSet )
     {
     staticClWriteIV.copy( toSet );
@@ -200,30 +127,94 @@ class EncryptTls
     toGet.copy( staticSrvWriteIV );
     }
 
-/*
-  void srvWriteEncryptCharBuf(
-                       const CharBuf& plainBuf,
-                       CharBuf& cipherBuf );
-*/
 
-  void srvWriteDecryptCharBuf(
-                     const CharBuf& cipherBuf,
-                     CharBuf& plainBuf );
+  public:
+  EncryptTls( void )
+    {
+    // aesServerWrite.encryptTest();
+    }
 
-/*
-  void clWriteEncryptCharBuf(
-                       const CharBuf& plainBuf,
-                       CharBuf& cipherBuf );
-*/
+  EncryptTls( const EncryptTls& in )
+    {
+    if( in.testForCopy )
+      return;
 
-  void clWriteDecryptCharBuf(
-                     const CharBuf& cipherBuf,
-                     CharBuf& plainBuf );
+    throw "EncryptTls copy constructor.";
+    }
+
+  ~EncryptTls( void )
+    {
+    }
+
+  void setHandshakeKeys(
+                     TlsMain& tlsMain,
+                     Integer& sharedS );
+
+  void setAppDataKeys( TlsMain& tlsMain );
+
+  void setDiffHelmOnClient( TlsMain& tlsMain,
+                            Integer& sharedS );
+
+  void setDiffHelmOnServer( TlsMain& tlsMain,
+                            Integer& sharedS );
+
+  void setClientPrivKey( const Integer& toSet )
+    {
+    clientPrivKey.copy( toSet );
+    }
+
+  void setClientPubKey( const Integer& toSet )
+    {
+    clientPubKey.copy( toSet );
+    }
+
+  void getClientPubKey( Integer& toGet ) const
+    {
+    toGet.copy( clientPubKey );
+    }
+
+  void getSrvPubKey( Integer& toGet ) const
+    {
+    toGet.copy( servPubKey );
+    }
+
+  void getClientPrivKey( Integer& toGet ) const
+    {
+    toGet.copy( clientPrivKey );
+    }
+
+  void setSrvPubKey( const Integer& toSet )
+    {
+    servPubKey.copy( toSet );
+    }
+
+
+  void setSrvPrivKey( const Integer& toSet )
+    {
+    servPrivKey.copy( toSet );
+    }
+
+  void getSrvPrivKey( Integer& toGet ) const
+    {
+    toGet.copy( servPrivKey );
+    }
 
   void makeSrvFinishedMsg( TlsMain& tlsMain,
                           CharBuf& finished );
 
   void makeClFinishedMsg( TlsMain& tlsMain,
                           CharBuf& finished );
+
+  void clWriteDecryptCharBuf(
+                     const CharBuf& cipherBuf,
+                     CharBuf& plainBuf );
+
+  void srvWriteDecryptCharBuf(
+                     const CharBuf& cipherBuf,
+                     CharBuf& plainBuf );
+
+  void clWriteMakeOuterRec(
+                       const CharBuf& plainBuf,
+                       CharBuf& outerRecBuf );
 
   };

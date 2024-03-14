@@ -143,25 +143,10 @@ for( Int32 count = 0; count < max; count++ )
       StIO::printFD( appBytesLast );
       StIO::putLF();
 
-
-      // RFC 8446 Section 5.2
-      // Record Payload Protection
-
-      // RFC 8446 Section 5.3.
-      // Set the per-record nonce.
-
       // recordBytes is everything except
       // the 5 starting bytes.
       // The five bytes are:
       // 23, 3, 3, recordBytes.getLast()
-
-      // recordBytes contains this:
-      // struct {
-      //  opaque content[TLSPlaintext.length];
-      //  ContentType type;
-      //   uint8 zeros[length_of_padding];
-      // } TLSInnerPlaintext;
-
 
       CharBuf plainBuf;
       encryptTls.srvWriteDecryptCharBuf(
@@ -355,6 +340,11 @@ for( Int32 count = 0; count < 100; count++ )
     CharBuf finished;
     encryptTls.makeClFinishedMsg( tlsMain,
                                   finished );
+
+    CharBuf outerRecBuf;
+    encryptTls.clWriteMakeOuterRec( finished,
+                                  outerRecBuf );
+
 /*
 ===== Make an encrypted outer record.
       complete record (58 octets):
