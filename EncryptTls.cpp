@@ -198,7 +198,7 @@ try
 // RFC 8446 Section 7
 // Cryptographic Computations
 
-// Follow along with the example in
+// See example in
 // RFC 8448 section 3
 // Simple 1-RTT Handshake.
 
@@ -672,7 +672,8 @@ void EncryptTls::srvWriteDecryptCharBuf(
 //   uint8 zeros[length_of_padding];
 // } TLSInnerPlaintext;
 
-
+// It is decrypting what came from
+// the client.
 Uint64 sequence = getClWriteRecSequence();
 
 // Increment the sequence for the next
@@ -758,6 +759,8 @@ aesClientWrite.decryptCharBuf(
                          plainBuf );
 
 }
+
+
 
 
 void EncryptTls::makeSrvFinishedMsg(
@@ -1032,6 +1035,10 @@ void EncryptTls::clWriteMakeOuterRec(
 //   uint8 zeros[length_of_padding];
 // } TLSInnerPlaintext;
 
+StIO::putS( "plainBuf:" );
+plainBuf.showHex();
+StIO::putS( "\n" );
+
 outerRecBuf.clear();
 const Int32 plainLast = plainBuf.getLast();
 if( plainLast < 5 )
@@ -1046,6 +1053,12 @@ innerPlain.appendU8( recType );
 // Append any number of zeros for padding.
 // innerPlain.appendU8( 0 );
 
+StIO::putS( "innerPlain:" );
+innerPlain.showHex();
+StIO::putS( "\n\n" );
+
+======
+RFC 8448 line 667
 
 Uint64 sequence = getClWriteRecSequence();
 
@@ -1073,13 +1086,14 @@ additionalData.appendU8(
 additionalData.appendU8( 3 );
 additionalData.appendU8( 3 );
 
+
 Int32 lengthRec = innerPlain.getLast();
 Uint8 highByte = (lengthRec >> 8) & 0xFF;
 Uint8 lowByte = lengthRec & 0xFF;
 additionalData.appendU8( highByte );
 additionalData.appendU8( lowByte );
 
-CharBuf cipherBuf; 
+CharBuf cipherBuf;
 aesClientWrite.encryptCharBuf(
                       innerPlain,
                       sequenceBuf, // IV,
@@ -1103,5 +1117,3 @@ StIO::putS( "\n\nclWriteMakeOuterRec()" );
 outerRecBuf.showHex();
 StIO::putS( "\n\n" );
 }
-
-

@@ -131,7 +131,7 @@ class EncryptTls
   public:
   EncryptTls( void )
     {
-    // aesServerWrite.encryptTest();
+    aesServerWrite.encryptTest();
     }
 
   EncryptTls( const EncryptTls& in )
