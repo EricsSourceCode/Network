@@ -210,8 +210,8 @@ class EncryptTls
                      CharBuf& plainBuf );
 
   void srvWriteDecryptCharBuf(
-                     const CharBuf& cipherBuf,
-                     CharBuf& plainBuf );
+                      const CharBuf& cipherBuf,
+                      CharBuf& plainBuf );
 
   void clWriteMakeOuterRec(
                        const CharBuf& plainBuf,

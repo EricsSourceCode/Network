@@ -345,14 +345,7 @@ for( Int32 count = 0; count < 100; count++ )
     encryptTls.clWriteMakeOuterRec( finished,
                                   outerRecBuf );
 
-/*
-      complete record (58 octets):
-  17 03 03 00 35 75 ec 4d c2 38 cc e6
-         0b 29 80 44 a7 1e 21 9c 56 cc 77 b0 51 7f e9 b9 3c 7a 4b fc 44
-         d8 7f 38 f8 03 38 ac 98 fc 46 de b3 84 bd 1c ae ac ab 68 67 d7
-         26 c4 05 46
-*/
-
+  outgoingBuf.appendCharBuf( outerRecBuf );
 
     // if( !sendTestVecFinished())
       // return -1;

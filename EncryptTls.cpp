@@ -654,7 +654,6 @@ StIO::putLF();
 }
 
 
-
 void EncryptTls::srvWriteDecryptCharBuf(
                      const CharBuf& cipherBuf,
                      CharBuf& plainBuf )
@@ -673,12 +672,12 @@ void EncryptTls::srvWriteDecryptCharBuf(
 // } TLSInnerPlaintext;
 
 // It is decrypting what came from
-// the client.
-Uint64 sequence = getClWriteRecSequence();
+// the server.
+Uint64 sequence = getSrvWriteRecSequence();
 
 // Increment the sequence for the next
 // record.
-incrementClWriteRecSequence();
+incrementSrvWriteRecSequence();
 
 CharBuf sequenceBuf;
 sequenceBuf.fillBytes( 0, 4 );
@@ -687,7 +686,7 @@ sequenceBuf.fillBytes( 0, 4 );
 sequenceBuf.appendU64( sequence );
 
 if( sequenceBuf.getLast() != 12 )
-throw "sequenceBuf != 12 bytes.";
+  throw "sequenceBuf != 12 bytes.";
 
 CharBuf statSrvWriteIV;
 getStaticSrvWriteIV( statSrvWriteIV );
@@ -716,15 +715,19 @@ aesServerWrite.decryptCharBuf(
 
 
 
+
 void EncryptTls::clWriteDecryptCharBuf(
                      const CharBuf& cipherBuf,
                      CharBuf& plainBuf )
 {
-Uint64 sequence = getSrvWriteRecSequence();
+// It is decrypting what came from
+// the client.
+
+Uint64 sequence = getClWriteRecSequence();
 
 // Increment the sequence for the next
 // record.
-incrementSrvWriteRecSequence();
+incrementClWriteRecSequence();
 
 CharBuf sequenceBuf;
 sequenceBuf.fillBytes( 0, 4 );
@@ -757,8 +760,8 @@ aesClientWrite.decryptCharBuf(
                          sequenceBuf, // IV,
                          additionalData, //aaData,
                          plainBuf );
-
 }
+
 
 
 
@@ -1057,10 +1060,14 @@ StIO::putS( "innerPlain:" );
 innerPlain.showHex();
 StIO::putS( "\n\n" );
 
-======
-RFC 8448 line 667
+// RFC 8448 line 667
 
 Uint64 sequence = getClWriteRecSequence();
+
+// The finished message is the first one
+// sent.
+// if( sequence != 0 )
+  // throw "Sequence is not zero.";
 
 // Increment the sequence for the next
 // record.
@@ -1073,7 +1080,7 @@ sequenceBuf.fillBytes( 0, 4 );
 sequenceBuf.appendU64( sequence );
 
 if( sequenceBuf.getLast() != 12 )
-throw "sequenceBuf != 12 bytes.";
+  throw "sequenceBuf != 12 bytes.";
 
 CharBuf statClWriteIV;
 getStaticClWriteIV( statClWriteIV );
@@ -1086,8 +1093,15 @@ additionalData.appendU8(
 additionalData.appendU8( 3 );
 additionalData.appendU8( 3 );
 
-
 Int32 lengthRec = innerPlain.getLast();
+
+StIO::printF( "lengthRec: " );
+StIO::printFD( lengthRec );
+StIO::putLF();
+
+// Add length for the auth tag.
+lengthRec += 16;
+
 Uint8 highByte = (lengthRec >> 8) & 0xFF;
 Uint8 lowByte = lengthRec & 0xFF;
 additionalData.appendU8( highByte );
@@ -1099,6 +1113,26 @@ aesClientWrite.encryptCharBuf(
                       sequenceBuf, // IV,
                       additionalData, // aaData,
                       cipherBuf );
+
+Int32 lengthCipher = cipherBuf.getLast();
+StIO::printF( "lengthCipher: " );
+StIO::printFD( lengthCipher );
+StIO::putLF();
+
+// Test it.
+CharBuf plainBufTest;
+aesClientWrite.decryptCharBuf(
+                         cipherBuf,
+                         sequenceBuf, // IV,
+                         additionalData, //aaData,
+                         plainBufTest );
+
+// Decrypt would throw an exception if:
+//  "Auth tags are not equal.";
+
+if( !plainBufTest.isEqual( innerPlain ))
+  throw "plainBufTest not equal.";
+
 
 outerRecBuf.appendU8(
              TlsOuterRec::ApplicationData );
@@ -1115,5 +1149,5 @@ outerRecBuf.appendCharBuf( cipherBuf );
 
 StIO::putS( "\n\nclWriteMakeOuterRec()" );
 outerRecBuf.showHex();
-StIO::putS( "\n\n" );
+StIO::putS( "\n\n\n" );
 }
