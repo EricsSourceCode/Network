@@ -999,6 +999,22 @@ finished.clear();
 // Put these bytes in front of it to make
 // the Handshake record.
 
+===== Fix this.
+
+CharBuf finishedOuter;
+
+finishedOuter.appendU8( TlsOuterRec::Handshake );
+finishedOuter.appendU8( 3 );
+finishedOuter.appendU8( 3 );
+
+Int32 lengthHandshake = verifyData.getLast();
+lengthHandshake += 4;
+Uint8 highByte = (lengthHandshake >> 8) & 0xFF;
+Uint8 lowByte = lengthHandshake & 0xFF;
+finishedOuter.appendU8( highByte );
+finishedOuter.appendU8( lowByte );
+
+
 // 0x14
 finished.appendU8( Handshake::FinishedID );
 // Length bytes:
@@ -1011,9 +1027,13 @@ finished.appendCharBuf( verifyData );
 // Then save that message:
 tlsMain.setClWriteFinishedMsg( finished );
 
-StIO::putS( "Finished Msg:" );
-finished.showHex();
+finishedOuter.appendCharBuf( finished );
+
+StIO::putS( "FinishedOuter Msg:" );
+finishedOuter.showHex();
 StIO::putLF();
+
+finished.copy( finishedOuter );
 
 StIO::putS( "End of makeClFinishedMsg()." );
 StIO::putS( "\n\n\n" );
@@ -1138,6 +1158,7 @@ outerRecBuf.appendU8(
              TlsOuterRec::ApplicationData );
 outerRecBuf.appendU8( 3 );
 outerRecBuf.appendU8( 3 );
+
 
 lengthRec = cipherBuf.getLast();
 highByte = (lengthRec >> 8) & 0xFF;
