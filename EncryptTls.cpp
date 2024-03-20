@@ -921,8 +921,7 @@ tlsMain.getSrvWriteFinishedMsg(
 //                        clWriteFinishedMsg );
 
 
-StIO::putS( "=============" );
-
+/*
 StIO::putS( "clHelloMsg:" );
 clHelloMsg.showHex();
 StIO::putLF();
@@ -951,7 +950,7 @@ StIO::putS( "clWriteFinishedMsg:" );
 clWriteFinishedMsg.showHex();
 StIO::putLF();
 StIO::putS( "=============" );
-
+*/
 
 
 context.copy( clHelloMsg );
@@ -993,27 +992,7 @@ verifyData.showHex();
 StIO::putLF();
 
 
-
 finished.clear();
-
-// Put these bytes in front of it to make
-// the Handshake record.
-
-===== Fix this.
-
-CharBuf finishedOuter;
-
-finishedOuter.appendU8( TlsOuterRec::Handshake );
-finishedOuter.appendU8( 3 );
-finishedOuter.appendU8( 3 );
-
-Int32 lengthHandshake = verifyData.getLast();
-lengthHandshake += 4;
-Uint8 highByte = (lengthHandshake >> 8) & 0xFF;
-Uint8 lowByte = lengthHandshake & 0xFF;
-finishedOuter.appendU8( highByte );
-finishedOuter.appendU8( lowByte );
-
 
 // 0x14
 finished.appendU8( Handshake::FinishedID );
@@ -1024,8 +1003,23 @@ finished.appendU8( 0x20 );
 
 finished.appendCharBuf( verifyData );
 
-// Then save that message:
 tlsMain.setClWriteFinishedMsg( finished );
+
+
+CharBuf finishedOuter;
+
+finishedOuter.appendU8( TlsOuterRec::Handshake );
+finishedOuter.appendU8( 3 );
+finishedOuter.appendU8( 3 );
+
+==== The handshake length is wrong?
+Int32 lengthHandshake = finished.getLast();
+
+Uint8 highByte = (lengthHandshake >> 8) & 0xFF;
+Uint8 lowByte = lengthHandshake & 0xFF;
+finishedOuter.appendU8( highByte );
+finishedOuter.appendU8( lowByte );
+
 
 finishedOuter.appendCharBuf( finished );
 
@@ -1033,6 +1027,7 @@ StIO::putS( "FinishedOuter Msg:" );
 finishedOuter.showHex();
 StIO::putLF();
 
+// Copy it to the outgoing parameter.
 finished.copy( finishedOuter );
 
 StIO::putS( "End of makeClFinishedMsg()." );
