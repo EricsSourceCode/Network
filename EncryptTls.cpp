@@ -889,7 +889,7 @@ StIO::putS( "\n\n\n" );
 
 void EncryptTls::makeClFinishedMsg(
                            TlsMain& tlsMain,
-                           CharBuf& finished )
+                           CharBuf& finishedOut )
 {
 // RFC 8446 section-4.4.4
 // Finished
@@ -991,8 +991,7 @@ StIO::putS( "verifyData:" );
 verifyData.showHex();
 StIO::putLF();
 
-
-finished.clear();
+CharBuf finished;
 
 // 0x14
 finished.appendU8( Handshake::FinishedID );
@@ -1006,29 +1005,21 @@ finished.appendCharBuf( verifyData );
 tlsMain.setClWriteFinishedMsg( finished );
 
 
-CharBuf finishedOuter;
+// CharBuf finishedOuter;
+// finishedOuter.appendU8( TlsOuterRec::Handshake );
+// finishedOuter.appendU8( 3 );
+// finishedOuter.appendU8( 3 );
+// Int32 lengthHandshake = finished.getLast();
+// Uint8 highByte = (lengthHandshake >> 8) & 0xFF;
+// Uint8 lowByte = lengthHandshake & 0xFF;
+// finishedOuter.appendU8( highByte );
+// finishedOuter.appendU8( lowByte );
+// finishedOuter.appendCharBuf( finished );
+// StIO::putS( "FinishedOuter Msg:" );
+// finishedOuter.showHex();
+// StIO::putLF();
 
-finishedOuter.appendU8( TlsOuterRec::Handshake );
-finishedOuter.appendU8( 3 );
-finishedOuter.appendU8( 3 );
-
-==== The handshake length is wrong?
-Int32 lengthHandshake = finished.getLast();
-
-Uint8 highByte = (lengthHandshake >> 8) & 0xFF;
-Uint8 lowByte = lengthHandshake & 0xFF;
-finishedOuter.appendU8( highByte );
-finishedOuter.appendU8( lowByte );
-
-
-finishedOuter.appendCharBuf( finished );
-
-StIO::putS( "FinishedOuter Msg:" );
-finishedOuter.showHex();
-StIO::putLF();
-
-// Copy it to the outgoing parameter.
-finished.copy( finishedOuter );
+finishedOut.copy( finished ); // Outer );
 
 StIO::putS( "End of makeClFinishedMsg()." );
 StIO::putS( "\n\n\n" );
@@ -1062,11 +1053,11 @@ const Int32 plainLast = plainBuf.getLast();
 if( plainLast < 5 )
   return;
 
-Uint8 recType = plainBuf.getU8( 0 );
+// Uint8 recType = plainBuf.getU8( 0 );
 
 CharBuf innerPlain; // TLSInnerPlaintext
 innerPlain.copy( plainBuf );
-innerPlain.appendU8( recType );
+innerPlain.appendU8( TlsOuterRec::Handshake );
 
 // Append any number of zeros for padding.
 // innerPlain.appendU8( 0 );
@@ -1078,11 +1069,6 @@ StIO::putS( "\n\n" );
 // RFC 8448 line 667
 
 Uint64 sequence = getClWriteRecSequence();
-
-// The finished message is the first one
-// sent.
-// if( sequence != 0 )
-  // throw "Sequence is not zero.";
 
 // Increment the sequence for the next
 // record.

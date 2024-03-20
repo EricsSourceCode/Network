@@ -78,7 +78,7 @@ class TlsMainCl
   Int32 processHandshake(
                      const CharBuf& inBuf );
 
-  // bool sendTestVecFinished( void );
+  bool sendTestVecFinished( void );
 
   bool startTestVecHandshake(
                      const CharBuf& urlDomain,

@@ -203,7 +203,7 @@ class EncryptTls
                           CharBuf& finished );
 
   void makeClFinishedMsg( TlsMain& tlsMain,
-                          CharBuf& finished );
+                          CharBuf& finishedOut );
 
   void clWriteDecryptCharBuf(
                      const CharBuf& cipherBuf,

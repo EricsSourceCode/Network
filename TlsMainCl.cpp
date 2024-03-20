@@ -345,7 +345,7 @@ for( Int32 count = 0; count < 100; count++ )
     encryptTls.clWriteMakeOuterRec( finished,
                                   outerRecBuf );
 
-  outgoingBuf.appendCharBuf( outerRecBuf );
+    outgoingBuf.appendCharBuf( outerRecBuf );
 
     // if( !sendTestVecFinished())
       // return -1;
@@ -434,6 +434,13 @@ messages.truncateLast( paddingLast - 1 );
 // ApplicationData = 23;
 // HeartBeat = 24;
 
+// CharBuf innerMessage;
+// const Int32 lastMsg = messages.getLast();
+
+// for( Int32 count = 5; count < lastMsg; count++ )
+//  innerMessage.appendU8(
+//                   messages.getU8( count ));
+
 if( messageType == TlsOuterRec::Handshake )
   {
   StIO::putLF();
@@ -449,7 +456,6 @@ if( messageType == TlsOuterRec::ChangeCipherSpec )
   StIO::putS(
            "messageType is ChangeCipherSpec." );
 
-  // What alert do I send back?
   return 0;
   }
 
@@ -462,6 +468,7 @@ if( messageType == TlsOuterRec::Alert )
 if( messageType == TlsOuterRec::ApplicationData )
   {
   StIO::putS( "messageType is ApplicationData." );
+
   return 1;
   }
 
@@ -528,12 +535,11 @@ outgoingBuf.clear();
 
 
 
-/*
 bool TlsMainCl::sendTestVecFinished( void )
 {
 StIO::putS( "Sending test vec finished." );
 
-////////
+/*
       finished (32 octets):  a8 ec 43 6d 67 76 34 ae 52 5a c1 fc eb e1
          1a 03 9e c1 76 94 fa c6 e9 85 27 b6 42 f2 ed d5 ce 61
 
@@ -542,9 +548,6 @@ StIO::putS( "Sending test vec finished." );
       Finished (36 octets):  14 00 00 20 a8 ec 43 6d 67 76 34 ae 52 5a
          c1 fc eb e1 1a 03 9e c1 76 94 fa c6 e9 85 27 b6 42 f2 ed d5 ce
          61
-
-
-tlsMain.setClientFinishedMsg( finRecBuf );
 
    {client}  send handshake record:
 
@@ -556,7 +559,7 @@ tlsMain.setClientFinishedMsg( finRecBuf );
          0b 29 80 44 a7 1e 21 9c 56 cc 77 b0 51 7f e9 b9 3c 7a 4b fc 44
          d8 7f 38 f8 03 38 ac 98 fc 46 de b3 84 bd 1c ae ac ab 68 67 d7
          26 c4 05 46
-////////
+*/
 
 // This includes the handshake header.
 const char* vecFinishedMsgString =
@@ -597,7 +600,7 @@ outgoingBuf.appendCharBuf( finRecBuf );
 
 return true;
 }
-*/
+
 
 
 

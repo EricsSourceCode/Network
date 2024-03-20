@@ -599,7 +599,6 @@ if( messageType == TlsOuterRec::ChangeCipherSpec )
   StIO::putS(
            "messageType is ChangeCipherSpec." );
 
-  // What alert do I send back?
   return 0;
   }
 
@@ -613,6 +612,7 @@ if( messageType == TlsOuterRec::ApplicationData )
   {
   StIO::putS(
      "App data messageType is ApplicationData." );
+
   return 1;
   }
 
