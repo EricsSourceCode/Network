@@ -423,23 +423,18 @@ messages.truncateLast( paddingLast );
 StIO::putS( "messages:" );
 messages.showHex();
 
+// The messageType is an OuterRec type.
 Int32 messageType = messages.getU8(
                            paddingLast - 1 );
 
 messages.truncateLast( paddingLast - 1 );
+
 
 // ChangeCipherSpec = 20;
 // Alert = 21;
 // Handshake = 22;
 // ApplicationData = 23;
 // HeartBeat = 24;
-
-// CharBuf innerMessage;
-// const Int32 lastMsg = messages.getLast();
-
-// for( Int32 count = 5; count < lastMsg; count++ )
-//  innerMessage.appendU8(
-//                   messages.getU8( count ));
 
 if( messageType == TlsOuterRec::Handshake )
   {

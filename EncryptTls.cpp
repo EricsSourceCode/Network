@@ -1053,11 +1053,13 @@ const Int32 plainLast = plainBuf.getLast();
 if( plainLast < 5 )
   return;
 
-// Uint8 recType = plainBuf.getU8( 0 );
 
 CharBuf innerPlain; // TLSInnerPlaintext
 innerPlain.copy( plainBuf );
+
 innerPlain.appendU8( TlsOuterRec::Handshake );
+
+
 
 // Append any number of zeros for padding.
 // innerPlain.appendU8( 0 );
@@ -1065,8 +1067,6 @@ innerPlain.appendU8( TlsOuterRec::Handshake );
 StIO::putS( "innerPlain:" );
 innerPlain.showHex();
 StIO::putS( "\n\n" );
-
-// RFC 8448 line 667
 
 Uint64 sequence = getClWriteRecSequence();
 
@@ -1120,6 +1120,7 @@ StIO::printF( "lengthCipher: " );
 StIO::printFD( lengthCipher );
 StIO::putLF();
 
+/*
 // Test it.
 CharBuf plainBufTest;
 aesClientWrite.decryptCharBuf(
@@ -1133,6 +1134,7 @@ aesClientWrite.decryptCharBuf(
 
 if( !plainBufTest.isEqual( innerPlain ))
   throw "plainBufTest not equal.";
+*/
 
 
 outerRecBuf.appendU8(
