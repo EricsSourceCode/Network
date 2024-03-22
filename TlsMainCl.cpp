@@ -464,6 +464,11 @@ if( messageType == TlsOuterRec::ApplicationData )
   {
   StIO::putS( "messageType is ApplicationData." );
 
+==== So do something with this app data.
+And send it to the server too.
+What does it show in RFC 8448 for that?
+
+
   return 1;
   }
 
