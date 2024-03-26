@@ -559,6 +559,8 @@ StIO::putLF();
 setStaticClWriteIV( clStatIV );
 setStaticSrvWriteIV( srvStatIV );
 
+appKeysSet = true;
+
 }
 catch( const char* in )
   {

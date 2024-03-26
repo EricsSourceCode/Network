@@ -18,7 +18,8 @@
 
 
 
-Int32 TlsMainCl::processOutgoing( void )
+Int32 TlsMainCl::processOutgoing( 
+                         CircleBuf& appOutBuf )
 {
 // What does it want to send back?
 CharBuf sendOutBuf;
@@ -39,6 +40,12 @@ if( howMany < outLast )
   return -1;
   }
 
+if( encryptTls.getAppKeysSet())
+  {
+  // ====appOutBuf
+  // ======= Send out app data.
+  }
+
 return 1;
 }
 
@@ -46,12 +53,8 @@ return 1;
 Int32 TlsMainCl::processIncoming( void )
 {
 CharBuf recvBuf;
-if( !netClient.isConnected())
-  return -1;
-
-netClient.receiveCharBuf( recvBuf );
-
-// Int32 recvLast = recvBuf.getLast();
+if( netClient.isConnected())
+  netClient.receiveCharBuf( recvBuf );
 
 const Int32 recvLast = recvBuf.getLast();
 
@@ -161,16 +164,24 @@ for( Int32 count = 0; count < max; count++ )
     if( recType == TlsOuterRec::HeartBeat )
       {
       StIO::putS( "Got a HeartBeat." );
-      return true;
+      return 1;
       }
 
     // It didn't find any matching type.
     sendPlainAlert( Alerts::UnexpectedMessage );
-    return false;
+    return -1;
     }
   }
 
-return true;
+if( circBufIn.isEmpty())
+  {
+  // Do this after processing data in circBuf.
+  if( !netClient.isConnected())
+    return -1;
+
+  }
+
+return 1;
 }
 
 
@@ -463,11 +474,6 @@ if( messageType == TlsOuterRec::Alert )
 if( messageType == TlsOuterRec::ApplicationData )
   {
   StIO::putS( "messageType is ApplicationData." );
-
-==== So do something with this app data.
-And send it to the server too.
-What does it show in RFC 8448 for that?
-
 
   return 1;
   }

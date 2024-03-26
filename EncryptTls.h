@@ -48,7 +48,7 @@ class EncryptTls
   AesGalois aesServerWrite;
   CharBuf clHsTraffic;
   CharBuf srvHsTraffic;
-
+  bool appKeysSet = false;
 
   void extract( CharBuf& prk,
                 const CharBuf& salt,
@@ -151,6 +151,11 @@ class EncryptTls
                      Integer& sharedS );
 
   void setAppDataKeys( TlsMain& tlsMain );
+
+  inline bool getAppKeysSet( void )
+    {
+    return appKeysSet;
+    }
 
   void setDiffHelmOnClient( TlsMain& tlsMain,
                             Integer& sharedS );

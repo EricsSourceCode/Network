@@ -52,6 +52,6 @@ class ClientTls
                      const CharBuf& urlDomain,
                      const CharBuf& port );
 
-  Int32 processData( void );
+  Int32 processData( CircleBuf& appOutBuf );
 
   };

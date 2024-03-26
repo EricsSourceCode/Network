@@ -49,6 +49,7 @@ class TlsMainCl
     {
     circBufIn.setSize(
          TlsMain::MaxRecordLengthCipher * 8 );
+
     }
 
 
@@ -68,7 +69,8 @@ class TlsMainCl
 
   Int32 processIncoming( void );
 
-  Int32 processOutgoing( void );
+  Int32 processOutgoing( 
+                     CircleBuf& appOutBuf );
 
   void copyOutBuf( CharBuf& sendOutBuf );
 
