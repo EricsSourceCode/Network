@@ -38,11 +38,13 @@ return tlsMainCl.startHandshake(
 
 
 Int32 ClientTls::processData(
-                       CircleBuf& appOutBuf )
+                       CircleBuf& appOutBuf,
+                       CircleBuf& appInBuf )
 {
 try
 {
-Int32 status = tlsMainCl.processIncoming();
+Int32 status = tlsMainCl.processIncoming(
+                                   appInBuf );
 
 if( status < 0 )
   return -1;

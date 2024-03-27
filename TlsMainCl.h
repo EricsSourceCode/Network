@@ -47,8 +47,9 @@ class TlsMainCl
   public:
   TlsMainCl( void )
     {
+    // It might receive big files with this.
     circBufIn.setSize(
-         TlsMain::MaxRecordLengthCipher * 8 );
+         1024 * 1024 );
 
     }
 
@@ -67,7 +68,7 @@ class TlsMainCl
 
   void sendPlainAlert( const Uint8 descript );
 
-  Int32 processIncoming( void );
+  Int32 processIncoming( CircleBuf& appInBuf );
 
   Int32 processOutgoing(
                      CircleBuf& appOutBuf );
@@ -75,7 +76,8 @@ class TlsMainCl
   void copyOutBuf( CharBuf& sendOutBuf );
 
   Int32 processAppData(
-                    const CharBuf& plainText );
+                    const CharBuf& plainText,
+                    CircleBuf& appInBuf );
 
   Int32 processHandshake(
                      const CharBuf& inBuf );

@@ -85,7 +85,8 @@ return 1;
 }
 
 
-Int32 TlsMainCl::processIncoming( void )
+Int32 TlsMainCl::processIncoming( 
+                          CircleBuf& appInBuf )
 {
 CharBuf recvBuf;
 if( netClient.isConnected())
@@ -191,7 +192,8 @@ for( Int32 count = 0; count < max; count++ )
                   recordBytes,
                   plainBuf );
 
-      return processAppData( plainBuf );
+      return processAppData( plainBuf,
+                             appInBuf );
       }
 
 
@@ -430,10 +432,11 @@ return -1;
 
 
 Int32 TlsMainCl::processAppData(
-                     const CharBuf& plainText )
+                     const CharBuf& plainText,
+                     CircleBuf& appInBuf )
 {
-StIO::putS( "App data plainText:" );
-plainText.showHex();
+// StIO::putS( "App data plainText:" );
+// plainText.showHex();
 
 CharBuf messages;
 messages.copy( plainText );
@@ -466,9 +469,6 @@ if( paddingLast == 0 )
   }
 
 messages.truncateLast( paddingLast );
-
-StIO::putS( "messages:" );
-messages.showHex();
 
 // The messageType is an OuterRec type.
 Int32 messageType = messages.getU8(
@@ -510,6 +510,17 @@ if( messageType == TlsOuterRec::Alert )
 if( messageType == TlsOuterRec::ApplicationData )
   {
   StIO::putS( "messageType is ApplicationData." );
+
+  StIO::putS( "App messages:" );
+  // messages.showHex();
+  messages.showAscii();
+
+  appInBuf.addCharBuf( messages );
+
+  StIO::printF( "appInBuf size:: " );
+  Int32 appLast = appInBuf.getHowMany();
+  StIO::printFD( appLast );
+  StIO::putLF();
 
   return 1;
   }

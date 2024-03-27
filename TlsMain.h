@@ -47,6 +47,9 @@ class TlsMain
   //  0x8000 is 2^15.
   // 0x10000 is 2^16.
   // 2 to the 14.
+  // 8 is 256, 9 is 512, 10 is 1024,
+  // 11 is 2048, 12 is 4K, 13 is 8K,
+  // 14 is 16K.
   static const Int32 MaxRecordLength = 0x4000;
 
   // For encrypted records that have things
