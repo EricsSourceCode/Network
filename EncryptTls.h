@@ -220,6 +220,7 @@ class EncryptTls
 
   void clWriteMakeOuterRec(
                        const CharBuf& plainBuf,
-                       CharBuf& outerRecBuf );
+                       CharBuf& outerRecBuf,
+                       const Uint8 recType );
 
   };

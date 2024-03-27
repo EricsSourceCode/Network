@@ -37,7 +37,7 @@ return tlsMainCl.startHandshake(
 
 
 
-Int32 ClientTls::processData( 
+Int32 ClientTls::processData(
                        CircleBuf& appOutBuf )
 {
 try

@@ -18,10 +18,9 @@
 
 
 
-Int32 TlsMainCl::processOutgoing( 
+Int32 TlsMainCl::processOutgoing(
                          CircleBuf& appOutBuf )
 {
-// What does it want to send back?
 CharBuf sendOutBuf;
 copyOutBuf( sendOutBuf );
 Int32 outLast = sendOutBuf.getLast();
@@ -42,8 +41,44 @@ if( howMany < outLast )
 
 if( encryptTls.getAppKeysSet())
   {
-  // ====appOutBuf
-  // ======= Send out app data.
+  CharBuf plainBuf;
+  const Int32 last =
+            tlsMain.getMaxFragLength() - 1024;
+
+  for( Int32 count = 0; count < last; count++ )
+    {
+    if( appOutBuf.isEmpty())
+      break;
+
+    plainBuf.appendU8( appOutBuf.getU8());
+    }
+
+  CharBuf outerRecBuf;
+  encryptTls.clWriteMakeOuterRec( plainBuf,
+              outerRecBuf,
+              TlsOuterRec::ApplicationData );
+
+  outLast = outerRecBuf.getLast();
+  if( outLast > 0 )
+    {
+    StIO::putS( "Sending app data." );
+    outerRecBuf.showHex();
+    plainBuf.showAscii();
+    StIO::putLF();
+
+    howMany = netClient.sendCharBuf(
+                            outerRecBuf );
+    }
+
+  if( howMany < outLast )
+    {
+    StIO::putS(
+          "TlsMainCl could not write all data." );
+    // Then do what about this?
+    // Use a CircleBuf to write it?
+    return -1;
+    }
+
   }
 
 return 1;
@@ -354,7 +389,8 @@ for( Int32 count = 0; count < 100; count++ )
 
     CharBuf outerRecBuf;
     encryptTls.clWriteMakeOuterRec( finished,
-                                  outerRecBuf );
+                      outerRecBuf,
+                      TlsOuterRec::Handshake );
 
     outgoingBuf.appendCharBuf( outerRecBuf );
 

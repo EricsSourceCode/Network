@@ -1031,7 +1031,8 @@ StIO::putS( "\n\n\n" );
 
 void EncryptTls::clWriteMakeOuterRec(
                        const CharBuf& plainBuf,
-                       CharBuf& outerRecBuf )
+                       CharBuf& outerRecBuf,
+                       const Uint8 recType )
 {
 // RFC 8446 Section 5.2
 // Record Payload Protection
@@ -1059,9 +1060,7 @@ if( plainLast < 5 )
 CharBuf innerPlain; // TLSInnerPlaintext
 innerPlain.copy( plainBuf );
 
-innerPlain.appendU8( TlsOuterRec::Handshake );
-
-
+innerPlain.appendU8( recType );
 
 // Append any number of zeros for padding.
 // innerPlain.appendU8( 0 );

@@ -613,6 +613,8 @@ if( messageType == TlsOuterRec::ApplicationData )
   StIO::putS(
      "App data messageType is ApplicationData." );
 
+  messages.showAscii();
+ 
   return 1;
   }
 

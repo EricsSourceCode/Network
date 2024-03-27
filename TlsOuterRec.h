@@ -67,11 +67,6 @@ class TlsOuterRec
                           CharBuf& outBuf,
                           TlsMain& tlsMain );
 
-  static Int32 makeAppDataRec(
-                       const CharBuf& inBuf,
-                       CharBuf& outBuf,
-                       TlsMain& tlsMain );
-
   inline void clear( void )
     {
     allBytes.clear();

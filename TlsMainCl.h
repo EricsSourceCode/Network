@@ -69,7 +69,7 @@ class TlsMainCl
 
   Int32 processIncoming( void );
 
-  Int32 processOutgoing( 
+  Int32 processOutgoing(
                      CircleBuf& appOutBuf );
 
   void copyOutBuf( CharBuf& sendOutBuf );
