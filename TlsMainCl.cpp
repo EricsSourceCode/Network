@@ -73,7 +73,7 @@ if( encryptTls.getAppKeysSet())
   if( howMany < outLast )
     {
     StIO::putS(
-          "TlsMainCl could not write all data." );
+        "TlsMainCl could not write all data." );
     // Then do what about this?
     // Use a CircleBuf to write it?
     return -1;
@@ -85,7 +85,7 @@ return 1;
 }
 
 
-Int32 TlsMainCl::processIncoming( 
+Int32 TlsMainCl::processIncoming(
                           CircleBuf& appInBuf )
 {
 CharBuf recvBuf;
@@ -94,15 +94,16 @@ if( netClient.isConnected())
 
 const Int32 recvLast = recvBuf.getLast();
 
-StIO::printF(
-         "TlsMainCl::processIncoming bytes: " );
-StIO::printFD( recvLast );
-StIO::putLF();
+// StIO::printF(
+//     "TlsMainCl::processIncoming bytes: " );
+// StIO::printFD( recvLast );
+// StIO::putLF();
 
 if( recvLast > 0 )
   {
   // It received some new data.
-  for( Int32 count = 0; count < recvLast; count++ )
+  for( Int32 count = 0; count < recvLast;
+                                      count++ )
     circBufIn.addU8( recvBuf.getU8( count ));
 
   }
@@ -115,13 +116,14 @@ for( Int32 count = 0; count < max; count++ )
 
   Uint8 aByte = circBufIn.getU8();
   Uint32 accumResult = tlsOuterRead.
-                              accumByte( aByte );
+                           accumByte( aByte );
   if( accumResult == Results::Continue )
     continue; // Get more bytes.
 
   if( accumResult < Results::AlertTop )
     {
-    StIO::putS( "tlsOuterRead.accumByte error." );
+    StIO::putS(
+             "tlsOuterRead.accumByte error." );
     sendPlainAlert( accumResult & 0xFF );
     tlsOuterRead.clear();
     // Cause it to time out with read closed.
@@ -175,12 +177,13 @@ for( Int32 count = 0; count < max; count++ )
 
     if( recType == TlsOuterRec::ApplicationData )
       {
-      StIO::putS( "Got ApplicationData." );
+      // StIO::putS( "Got ApplicationData." );
 
-      Int32 appBytesLast = recordBytes.getLast();
-      StIO::printF( "appBytes last: " );
-      StIO::printFD( appBytesLast );
-      StIO::putLF();
+      // Int32 appBytesLast =
+      //       recordBytes.getLast();
+      // StIO::printF( "appBytes last: " );
+      // StIO::printFD( appBytesLast );
+      // StIO::putLF();
 
       // recordBytes is everything except
       // the 5 starting bytes.
@@ -281,7 +284,8 @@ for( Int32 count = 0; count < 100; count++ )
     // StIO::putS(
     //    "Handshake message out of order." );
     // Which alert is this?
-    // sendPlainAlert( Alerts::UnexpectedMessage );
+    // sendPlainAlert(
+    //       Alerts::UnexpectedMessage );
     // return -1;
     // }
 
@@ -291,7 +295,8 @@ for( Int32 count = 0; count < 100; count++ )
     {
     StIO::putS(
            "Client got a ClientHello." );
-    // sendPlainAlert( Alerts::UnexpectedMessage );
+    // sendPlainAlert(
+    //        Alerts::UnexpectedMessage );
     return -1;
     }
 
@@ -419,7 +424,7 @@ for( Int32 count = 0; count < 100; count++ )
     continue;
     }
 
-  StIO::putS( "Handshake message unknown." );
+  throw "Handshake message unknown.";
   }
 
 // If someone put over 100 handshake messages
@@ -485,11 +490,6 @@ messages.truncateLast( paddingLast - 1 );
 
 if( messageType == TlsOuterRec::Handshake )
   {
-  StIO::putLF();
-  StIO::putS(
-      "App data messageType is handshake." );
-  StIO::putLF();
-
   return processHandshake( messages );
   }
 
@@ -509,11 +509,9 @@ if( messageType == TlsOuterRec::Alert )
 
 if( messageType == TlsOuterRec::ApplicationData )
   {
-  StIO::putS( "messageType is ApplicationData." );
-
-  StIO::putS( "App messages:" );
+  // StIO::putS( "App messages:" );
   // messages.showHex();
-  messages.showAscii();
+  // messages.showAscii();
 
   appInBuf.addCharBuf( messages );
 
@@ -531,8 +529,8 @@ if( messageType == TlsOuterRec::HeartBeat )
   return 1;
   }
 
-StIO::putS( "messageType is unknown." );
-return -1;
+throw "Application messageType is unknown.";
+// return -1;
 }
 
 
@@ -591,28 +589,6 @@ outgoingBuf.clear();
 bool TlsMainCl::sendTestVecFinished( void )
 {
 StIO::putS( "Sending test vec finished." );
-
-/*
-      finished (32 octets):  a8 ec 43 6d 67 76 34 ae 52 5a c1 fc eb e1
-         1a 03 9e c1 76 94 fa c6 e9 85 27 b6 42 f2 ed d5 ce 61
-
-   {client}  construct a Finished handshake message:
-
-      Finished (36 octets):  14 00 00 20 a8 ec 43 6d 67 76 34 ae 52 5a
-         c1 fc eb e1 1a 03 9e c1 76 94 fa c6 e9 85 27 b6 42 f2 ed d5 ce
-         61
-
-   {client}  send handshake record:
-
-      payload (36 octets):  14 00 00 20 a8 ec 43 6d 67 76 34 ae 52 5a c1
-         fc eb e1 1a 03 9e c1 76 94 fa c6 e9 85 27 b6 42 f2 ed d5 ce 61
-
-      complete record (58 octets):
-  17 03 03 00 35 75 ec 4d c2 38 cc e6
-         0b 29 80 44 a7 1e 21 9c 56 cc 77 b0 51 7f e9 b9 3c 7a 4b fc 44
-         d8 7f 38 f8 03 38 ac 98 fc 46 de b3 84 bd 1c ae ac ab 68 67 d7
-         26 c4 05 46
-*/
 
 // This includes the handshake header.
 const char* vecFinishedMsgString =

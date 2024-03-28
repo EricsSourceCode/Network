@@ -44,11 +44,11 @@ class TlsOuterRec
   // RFC 6520
 
 
-  inline TlsOuterRec( void )
+  TlsOuterRec( void )
     {
     }
 
-  inline TlsOuterRec( const TlsOuterRec& in )
+  TlsOuterRec( const TlsOuterRec& in )
     {
     if( in.testForCopy )
       return;
@@ -56,7 +56,7 @@ class TlsOuterRec
     throw "TlsOuterRec copy constructor called.";
     }
 
-  inline ~TlsOuterRec( void )
+  ~TlsOuterRec( void )
     {
     }
 
@@ -72,7 +72,7 @@ class TlsOuterRec
     allBytes.clear();
     }
 
-  inline void copyBytes( CharBuf& copyTo ) const
+  void copyBytes( CharBuf& copyTo ) const
     {
     // copyTo.clear();
 

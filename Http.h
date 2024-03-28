@@ -21,9 +21,11 @@
 #include "../CppBase/BasicTypes.h"
 #include "../CppBase/CharBuf.h"
 
+https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Response_fields
+
 
 // HTTP/1.1
-// RFC 9112
+// RFC 9110
 
 //  HTTP-message   = start-line CRLF
 //                   *( field-line CRLF )

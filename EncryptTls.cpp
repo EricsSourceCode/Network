@@ -202,7 +202,7 @@ try
 // RFC 8448 section 3
 // Simple 1-RTT Handshake.
 
-StIO::putS( "setHandshakeKeys()" );
+// StIO::putS( "setHandshakeKeys()" );
 
 CharBuf prk;  // Pseudo Random Key
 CharBuf salt;
@@ -217,8 +217,8 @@ salt.fillBytes( 0, 32 );
 ikm.fillBytes( 0, 32 );
 extract( prk, salt, ikm );
 
-StIO::putS( "Early Secret:" );
-prk.showHex();
+// StIO::putS( "Early Secret:" );
+// prk.showHex();
 // secret (32 octets):  33 ad 0a 1c 60 7e
 // c0 3b 09 e6 cd 98 93 68 0c e2 10 ad f3
 // 00 aa 1f 26 60 e1 b2 2e 10 f1 70 f9 2a
@@ -231,9 +231,9 @@ CharBuf emptyMessages; // Empty for this one.
 deriveSecret( outBuf, prk, "derived",
                             emptyMessages );
 
-StIO::putS( "First derived secret:" );
-outBuf.showHex();
-StIO::putLF();
+// StIO::putS( "First derived secret:" );
+// outBuf.showHex();
+// StIO::putLF();
 
 
 // First Derived Secret:
@@ -253,9 +253,9 @@ ikm.copy( sharedBytes );
 
 extract( prk, salt, ikm );
 
-StIO::putS( "Handshake secret:" );
-prk.showHex();
-StIO::putLF();
+// StIO::putS( "Handshake secret:" );
+// prk.showHex();
+// StIO::putLF();
 
 CharBuf clHelloMsg;
 CharBuf srvHelloMsg;
@@ -263,13 +263,13 @@ CharBuf srvHelloMsg;
 tlsMain.getClientHelloMsg( clHelloMsg );
 tlsMain.getServerHelloMsg( srvHelloMsg );
 
-StIO::putS( "clHelloMsg:" );
-clHelloMsg.showHex();
-StIO::putLF();
+// StIO::putS( "clHelloMsg:" );
+// clHelloMsg.showHex();
+// StIO::putLF();
 
-StIO::putS( "srvHelloMsg:" );
-srvHelloMsg.showHex();
-StIO::putLF();
+// StIO::putS( "srvHelloMsg:" );
+// srvHelloMsg.showHex();
+// StIO::putLF();
 
 CharBuf msgHash;
 msgHash.copy( clHelloMsg );
@@ -280,36 +280,38 @@ deriveSecret( outBuf, prk, "c hs traffic",
 
 clHsTraffic.copy( outBuf );
 
-StIO::putS( "c hs traffic:" );
-clHsTraffic.showHex();
-StIO::putLF();
+// StIO::putS( "c hs traffic:" );
+// clHsTraffic.showHex();
+// StIO::putLF();
 
 outBuf.clear();
 deriveSecret( outBuf, prk, "s hs traffic",
                                   msgHash );
 
 srvHsTraffic.copy( outBuf );
-StIO::putS( "s hs traffic:" );
-srvHsTraffic.showHex();
-StIO::putLF();
+
+// StIO::putS( "s hs traffic:" );
+// srvHsTraffic.showHex();
+// StIO::putLF();
 
 outBuf.clear();
 // Derive-Secret(., "derived", "")
 deriveSecret( outBuf, prk, "derived",
                               emptyMessages );
 
-StIO::putS( "Derived Secret for Master:" );
-outBuf.showHex();
-StIO::putLF();
+// StIO::putS( "Derived Secret for Master:" );
+// outBuf.showHex();
+// StIO::putLF();
 
 salt.copy( outBuf );
 ikm.fillBytes( 0, 32 );
 extract( outBuf, salt, ikm );
 
 extractSecretMaster.copy( outBuf );
-StIO::putS( "Extract Secret Master:" );
-extractSecretMaster.showHex();
-StIO::putLF();
+
+// StIO::putS( "Extract Secret Master:" );
+// extractSecretMaster.showHex();
+// StIO::putLF();
 
 CharBuf clTrafficKey;
 hkdfExpandLabel( clTrafficKey, clHsTraffic,
@@ -318,9 +320,9 @@ hkdfExpandLabel( clTrafficKey, clHsTraffic,
 // Only use the first 16 bytes.
 clTrafficKey.truncateLast( 16 );
 
-StIO::putS( "clTrafficKey:" );
-clTrafficKey.showHex();
-StIO::putLF();
+// StIO::putS( "clTrafficKey:" );
+// clTrafficKey.showHex();
+// StIO::putLF();
 
 aesClientWrite.setKey( clTrafficKey, 16 );
 
@@ -330,9 +332,9 @@ hkdfExpandLabel( srvTrafficKey, srvHsTraffic,
 
 srvTrafficKey.truncateLast( 16 );
 
-StIO::putS( "srvTrafficKey:" );
-srvTrafficKey.showHex();
-StIO::putLF();
+// StIO::putS( "srvTrafficKey:" );
+// srvTrafficKey.showHex();
+// StIO::putLF();
 
 aesServerWrite.setKey( srvTrafficKey, 16 );
 
@@ -355,9 +357,9 @@ hkdfExpandLabel( srvWriteStatIV, srvHsTraffic,
                  "iv", "", 12 );
 srvWriteStatIV.truncateLast( 12 );
 
-StIO::putS( "srvWriteStatIV:" );
-srvWriteStatIV.showHex();
-StIO::putLF();
+// StIO::putS( "srvWriteStatIV:" );
+// srvWriteStatIV.showHex();
+// StIO::putLF();
 
 
 CharBuf clWriteStatIV;
@@ -365,9 +367,9 @@ hkdfExpandLabel( clWriteStatIV, clHsTraffic,
                  "iv", "", 12 );
 clWriteStatIV.truncateLast( 12 );
 
-StIO::putS( "clWriteStatIV:" );
-clWriteStatIV.showHex();
-StIO::putLF();
+// StIO::putS( "clWriteStatIV:" );
+// clWriteStatIV.showHex();
+// StIO::putLF();
 
 setStaticClWriteIV( clWriteStatIV );
 setStaticSrvWriteIV( srvWriteStatIV );
@@ -396,13 +398,13 @@ void EncryptTls::setAppDataKeys(
 {
 try
 {
-StIO::putS( "setAppDataKeys" );
+// StIO::putS( "setAppDataKeys" );
 
 // This was set in setHandshakeKeys().
-StIO::putS( "Extract Secret Master:" );
-extractSecretMaster.showHex();
-StIO::putLF();
-StIO::putLF();
+
+// StIO::putS( "Extract Secret Master:" );
+// extractSecretMaster.showHex();
+// StIO::putLF();
 
 CharBuf messages;
 
@@ -427,37 +429,6 @@ tlsMain.getClWriteFinishedMsg(
 tlsMain.getClWriteFinishedMsg(
                        clWriteFinishedMsg );
 
-/*
-StIO::putS( "clHelloMsg:" );
-clHelloMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "srvHelloMsg:" );
-srvHelloMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "encExtenMsg:" );
-encExtenMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "certificateMsg:" );
-certificateMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "certVerifyMsg:" );
-certVerifyMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "srvWriteFinishedMsg:"  );
-srvWriteFinishedMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "clWriteFinishedMsg:" );
-clWriteFinishedMsg.showHex();
-StIO::putLF();
-*/
-
-
 messages.copy( clHelloMsg );
 messages.appendCharBuf( srvHelloMsg );
 messages.appendCharBuf( encExtenMsg );
@@ -481,9 +452,9 @@ deriveSecret( outBuf, prk, "s ap traffic",
 CharBuf srvAppDataTraffic;
 srvAppDataTraffic.copy( outBuf );
 
-StIO::putS( "s ap traffic:" );
-srvAppDataTraffic.showHex();
-StIO::putLF();
+// StIO::putS( "s ap traffic:" );
+// srvAppDataTraffic.showHex();
+// StIO::putLF();
 
 deriveSecret( outBuf, prk, "c ap traffic",
                                  messages );
@@ -491,11 +462,9 @@ deriveSecret( outBuf, prk, "c ap traffic",
 CharBuf clAppDataTraffic;
 clAppDataTraffic.copy( outBuf );
 
-StIO::putS( "c ap traffic:" );
-clAppDataTraffic.showHex();
-StIO::putLF();
-
-
+// StIO::putS( "c ap traffic:" );
+// clAppDataTraffic.showHex();
+// StIO::putLF();
 
 CharBuf clTrafficKey;
 hkdfExpandLabel( clTrafficKey, clAppDataTraffic,
@@ -504,12 +473,11 @@ hkdfExpandLabel( clTrafficKey, clAppDataTraffic,
 // Only use the first 16 bytes.
 clTrafficKey.truncateLast( 16 );
 
-StIO::putS( "clTrafficKey:" );
-clTrafficKey.showHex();
-StIO::putLF();
+// StIO::putS( "clTrafficKey:" );
+// clTrafficKey.showHex();
+// StIO::putLF();
 
 aesClientWrite.setKey( clTrafficKey, 16 );
-
 
 CharBuf srvTrafficKey;
 hkdfExpandLabel( srvTrafficKey,
@@ -517,9 +485,9 @@ hkdfExpandLabel( srvTrafficKey,
 
 srvTrafficKey.truncateLast( 16 );
 
-StIO::putS( "srvTrafficKey:" );
-srvTrafficKey.showHex();
-StIO::putLF();
+// StIO::putS( "srvTrafficKey:" );
+// srvTrafficKey.showHex();
+// StIO::putLF();
 
 aesServerWrite.setKey( srvTrafficKey, 16 );
 
@@ -542,9 +510,9 @@ hkdfExpandLabel( srvStatIV, srvAppDataTraffic,
                  "iv", "", 12 );
 srvStatIV.truncateLast( 12 );
 
-StIO::putS( "srvStatIV:" );
-srvStatIV.showHex();
-StIO::putLF();
+// StIO::putS( "srvStatIV:" );
+// srvStatIV.showHex();
+// StIO::putLF();
 
 
 CharBuf clStatIV;
@@ -552,9 +520,9 @@ hkdfExpandLabel( clStatIV, clAppDataTraffic,
                  "iv", "", 12 );
 clStatIV.truncateLast( 12 );
 
-StIO::putS( "clStatIV:" );
-clStatIV.showHex();
-StIO::putLF();
+// StIO::putS( "clStatIV:" );
+// clStatIV.showHex();
+// StIO::putLF();
 
 setStaticClWriteIV( clStatIV );
 setStaticSrvWriteIV( srvStatIV );
@@ -589,7 +557,7 @@ void EncryptTls::setDiffHelmOnClient(
 {
 // See RFC 7748 Section 6.1.
 
-StIO::putS( "setDiffHelmOnClient" );
+// StIO::putS( "setDiffHelmOnClient" );
 
 
 tlsMain.mCurve.montLadder1(
@@ -613,10 +581,9 @@ if( sharedBytes.getSize() != 32 )
 CharBuf sharedBuf;
 sharedBuf.appendCharArray( sharedBytes, 32 );
 
-
-StIO::putS( "Shared Key:" );
-sharedBuf.showHex();
-StIO::putLF();
+// StIO::putS( "Shared Key:" );
+// sharedBuf.showHex();
+// StIO::putLF();
 }
 
 
@@ -627,7 +594,7 @@ void EncryptTls::setDiffHelmOnServer(
 {
 // See RFC 7748 Section 6.1.
 
-StIO::putS( "setDiffHelmOnServer" );
+// StIO::putS( "setDiffHelmOnServer" );
 
 tlsMain.mCurve.montLadder1(
                      sharedS, clientPubKey,
@@ -650,9 +617,9 @@ if( sharedBytes.getSize() != 32 )
 CharBuf sharedBuf;
 sharedBuf.appendCharArray( sharedBytes, 32 );
 
-StIO::putS( "Shared Key:" );
-sharedBuf.showHex();
-StIO::putLF();
+// StIO::putS( "Shared Key:" );
+// sharedBuf.showHex();
+// StIO::putLF();
 }
 
 
@@ -775,8 +742,8 @@ void EncryptTls::makeSrvFinishedMsg(
 // RFC 8446 section-4.4.4
 // Finished
 
-StIO::putS( "\n\n\n=============" );
-StIO::putS( "makeSrvFinishedMsg()." );
+// StIO::putS( "\n\n\n=============" );
+// StIO::putS( "makeSrvFinishedMsg()." );
 
 CharBuf context;
 
@@ -801,47 +768,11 @@ tlsMain.getCertVerifyMsg( certVerifyMsg );
 // tlsMain.getClWriteFinishedMsg(
 //                        clWriteFinishedMsg );
 
-
-/*
-StIO::putS( "=============" );
-
-StIO::putS( "clHelloMsg:" );
-clHelloMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "srvHelloMsg:" );
-srvHelloMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "encExtenMsg:" );
-encExtenMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "certificateMsg:" );
-certificateMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "certVerifyMsg:" );
-certVerifyMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "srvWriteFinishedMsg:"  );
-srvWriteFinishedMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "clWriteFinishedMsg:" );
-clWriteFinishedMsg.showHex();
-StIO::putLF();
-StIO::putS( "=============" );
-*/
-
-
 context.copy( clHelloMsg );
 context.appendCharBuf( srvHelloMsg );
 context.appendCharBuf( encExtenMsg );
 context.appendCharBuf( certificateMsg );
 context.appendCharBuf( certVerifyMsg );
-
 
 CharBuf baseKey;
 baseKey.copy( srvHsTraffic );
@@ -870,9 +801,9 @@ CharBuf verifyData;
 sha256.hMac( verifyData, finishedKey,
                          transcriptHash );
 
-StIO::putS( "verifyData:" );
-verifyData.showHex();
-StIO::putLF();
+// StIO::putS( "verifyData:" );
+// verifyData.showHex();
+// StIO::putLF();
 
 finished.copy( verifyData );
 
@@ -883,8 +814,8 @@ finished.copy( verifyData );
 // tlsMain.setSrvWriteFinishedMsg(
 //                        srvWriteFinishedMsg );
 
-StIO::putS( "End of makeSrvFinishedMsg()." );
-StIO::putS( "\n\n\n" );
+// StIO::putS( "End of makeSrvFinishedMsg()." );
+// StIO::putS( "\n\n\n" );
 }
 
 
@@ -896,8 +827,8 @@ void EncryptTls::makeClFinishedMsg(
 // RFC 8446 section-4.4.4
 // Finished
 
-StIO::putS( "\n\n\n=============" );
-StIO::putS( "makeClFinishedMsg()." );
+// StIO::putS( "\n\n\n=============" );
+// StIO::putS( "makeClFinishedMsg()." );
 
 CharBuf context;
 
@@ -921,39 +852,6 @@ tlsMain.getSrvWriteFinishedMsg(
 
 // tlsMain.getClWriteFinishedMsg(
 //                        clWriteFinishedMsg );
-
-
-/*
-StIO::putS( "clHelloMsg:" );
-clHelloMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "srvHelloMsg:" );
-srvHelloMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "encExtenMsg:" );
-encExtenMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "certificateMsg:" );
-certificateMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "certVerifyMsg:" );
-certVerifyMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "srvWriteFinishedMsg:"  );
-srvWriteFinishedMsg.showHex();
-StIO::putLF();
-
-StIO::putS( "clWriteFinishedMsg:" );
-clWriteFinishedMsg.showHex();
-StIO::putLF();
-StIO::putS( "=============" );
-*/
-
 
 context.copy( clHelloMsg );
 context.appendCharBuf( srvHelloMsg );
@@ -989,9 +887,9 @@ CharBuf verifyData;
 sha256.hMac( verifyData, finishedKey,
                          transcriptHash );
 
-StIO::putS( "verifyData:" );
-verifyData.showHex();
-StIO::putLF();
+// StIO::putS( "verifyData:" );
+// verifyData.showHex();
+// StIO::putLF();
 
 CharBuf finished;
 
@@ -1023,8 +921,8 @@ tlsMain.setClWriteFinishedMsg( finished );
 
 finishedOut.copy( finished ); // Outer );
 
-StIO::putS( "End of makeClFinishedMsg()." );
-StIO::putS( "\n\n\n" );
+// StIO::putS( "End of makeClFinishedMsg()." );
+// StIO::putS( "\n\n\n" );
 }
 
 
@@ -1047,9 +945,9 @@ void EncryptTls::clWriteMakeOuterRec(
 //   uint8 zeros[length_of_padding];
 // } TLSInnerPlaintext;
 
-StIO::putS( "plainBuf:" );
-plainBuf.showHex();
-StIO::putS( "\n" );
+// StIO::putS( "plainBuf:" );
+// plainBuf.showHex();
+// StIO::putS( "\n" );
 
 outerRecBuf.clear();
 const Int32 plainLast = plainBuf.getLast();
@@ -1065,9 +963,9 @@ innerPlain.appendU8( recType );
 // Append any number of zeros for padding.
 // innerPlain.appendU8( 0 );
 
-StIO::putS( "innerPlain:" );
-innerPlain.showHex();
-StIO::putS( "\n\n" );
+// StIO::putS( "innerPlain:" );
+// innerPlain.showHex();
+// StIO::putS( "\n\n" );
 
 Uint64 sequence = getClWriteRecSequence();
 
@@ -1097,9 +995,9 @@ additionalData.appendU8( 3 );
 
 Int32 lengthRec = innerPlain.getLast();
 
-StIO::printF( "lengthRec: " );
-StIO::printFD( lengthRec );
-StIO::putLF();
+// StIO::printF( "lengthRec: " );
+// StIO::printFD( lengthRec );
+// StIO::putLF();
 
 // Add length for the auth tag.
 lengthRec += 16;
@@ -1116,33 +1014,15 @@ aesClientWrite.encryptCharBuf(
                       additionalData, // aaData,
                       cipherBuf );
 
-Int32 lengthCipher = cipherBuf.getLast();
-StIO::printF( "lengthCipher: " );
-StIO::printFD( lengthCipher );
-StIO::putLF();
-
-/*
-// Test it.
-CharBuf plainBufTest;
-aesClientWrite.decryptCharBuf(
-                         cipherBuf,
-                         sequenceBuf, // IV,
-                         additionalData, //aaData,
-                         plainBufTest );
-
-// Decrypt would throw an exception if:
-//  "Auth tags are not equal.";
-
-if( !plainBufTest.isEqual( innerPlain ))
-  throw "plainBufTest not equal.";
-*/
-
+// Int32 lengthCipher = cipherBuf.getLast();
+// StIO::printF( "lengthCipher: " );
+// StIO::printFD( lengthCipher );
+// StIO::putLF();
 
 outerRecBuf.appendU8(
              TlsOuterRec::ApplicationData );
 outerRecBuf.appendU8( 3 );
 outerRecBuf.appendU8( 3 );
-
 
 lengthRec = cipherBuf.getLast();
 highByte = (lengthRec >> 8) & 0xFF;
@@ -1152,7 +1032,7 @@ outerRecBuf.appendU8( lowByte );
 
 outerRecBuf.appendCharBuf( cipherBuf );
 
-StIO::putS( "\n\nclWriteMakeOuterRec()" );
-outerRecBuf.showHex();
-StIO::putS( "\n\n\n" );
+// StIO::putS( "\n\nclWriteMakeOuterRec()" );
+// outerRecBuf.showHex();
+// StIO::putS( "\n\n\n" );
 }

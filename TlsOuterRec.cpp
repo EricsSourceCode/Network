@@ -22,16 +22,16 @@ Int32 last = allBytes.getLast();
 
 if( last == 1 )
   {
-  StIO::putLF();
-  StIO::putS( "\nNew Outer Rec." );
-  StIO::printF( "Byte is: " );
-  StIO::printFUD( toAdd );
-  StIO::putLF();
+  // StIO::putLF();
+  // StIO::putS( "\nNew Outer Rec." );
+  // StIO::printF( "Byte is: " );
+  // StIO::printFUD( toAdd );
+  // StIO::putLF();
 
   if( toAdd == Handshake )
     {
     recordType = Handshake;
-    StIO::putS( "Outer Rec is handshake." );
+    // StIO::putS( "Outer Rec is handshake." );
     return Results::Continue; // Keep adding bytes.
     }
 
@@ -53,7 +53,8 @@ if( last == 1 )
 
   if( toAdd == ApplicationData )
     {
-    StIO::putS( "Outer Rec is application data." );
+    // StIO::putS(
+    //      "Outer Rec is application data." );
     recordType = ApplicationData;
     return Results::Continue;
     }
@@ -66,9 +67,8 @@ if( last == 1 )
     }
 
   // Unknown byte to deal with.
-  StIO::putS(
-           "The outer record type is unknown." );
-  return Alerts::UnexpectedMessage;
+  throw "The outer record type is unknown.";
+  // return Alerts::UnexpectedMessage;
   }
 
 if( last == 5 )
@@ -96,9 +96,10 @@ if( last == 5 )
     return Alerts::RecordOverflow;
     }
 
-  StIO::printF( "Outer Record length: " );
-  StIO::printFD( recLength );
-  StIO::putLF();
+  // StIO::printF( "Outer Record length: " );
+  // StIO::printFD( recLength );
+  // StIO::putLF();
+
   return Results::Continue;
   }
 
@@ -106,8 +107,8 @@ if( last > 5 )
   {
   if( last >= (recLength + 5) )
     {
-    StIO::putS(
-         "Outer Rec is complete for length.\n" );
+    // StIO::putS(
+    //  "Outer Rec is complete for length." );
 
     return Results::Done;
     }
@@ -145,10 +146,11 @@ outBuf.appendU8( msgLength & 0xFF );
 for( Int32 count = 0; count < msgLength; count++ )
   outBuf.appendU8( inBuf.getU8( count ));
 
-StIO::printF( "outBuf last: " );
-StIO::printFD( outBuf.getLast() );
-StIO::putLF();
+// StIO::printF( "outBuf last: " );
+// StIO::printFD( outBuf.getLast() );
+// StIO::putLF();
 
 // How many bytes of inBuf it sent.
 return msgLength + 5;
 }
+
