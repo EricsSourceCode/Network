@@ -20,35 +20,29 @@
 
 #include "../CppBase/BasicTypes.h"
 #include "../CppBase/CharBuf.h"
-#include "../CppBase/CircleBuf.h"
 
 
-class Http
+class HttpChunk
   {
   private:
   bool testForCopy = false;
-  CircleBuf httpOutBuf;
-  CircleBuf httpInBuf;
 
   public:
-  Http( void )
+  HttpChunk( void )
     {
-    httpOutBuf.setSize( 1024 * 64 );
-    httpInBuf.setSize( 1024 * 1024 * 64 );
     }
 
-  Http( const Http& in )
+  HttpChunk( const HttpChunk& in )
     {
     if( in.testForCopy )
       return;
 
-    throw "Http copy constructor called.";
+    throw "HttpChunk copy constructor called.";
     }
 
-  ~Http( void )
+  ~HttpChunk( void )
     {
     }
 
-  void getWebPage( void );
-
   };
+

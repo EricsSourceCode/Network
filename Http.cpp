@@ -25,7 +25,7 @@
 
 
 // https://en.wikipedia.org/wiki/
-//    List_of_HTTP_header_fields#Response_fields
+//               List_of_HTTP_header_fields
 
 
 // HTTP/1.1
@@ -78,7 +78,7 @@ CharBuf appDataToSend;
 appDataToSend.setFromCharPoint( getRequest );
 
 // This will go out after the handshake.
-appOutBuf.addCharBuf( appDataToSend );
+httpOutBuf.addCharBuf( appDataToSend );
 
 CharBuf fileBuf;
 for( Int32 count = 0; count < 10000; count++ )
@@ -93,13 +93,13 @@ for( Int32 count = 0; count < 10000; count++ )
       "\nTop of MainApp.processData loop()." );
 
   Int32 status = clientTls.processData(
-                                  appOutBuf,
-                                  appInBuf );
+                                  httpOutBuf,
+                                  httpInBuf );
 
   if( status <= 0 )
     break;
 
-  appInBuf.appendToCharBuf( fileBuf, 10000 );
+  httpInBuf.appendToCharBuf( fileBuf, 10000 );
 
 /*
 Right after \r\n\r\n is the first chunk
@@ -112,10 +112,16 @@ https://en.wikipedia.org/wiki/Chunked_transfer_encoding
 RFC 9112.
 Each chunk is preceded by its size in bytes.
 A zero length chunk means it's the end.
+A zero length chunk doesn't have two or
+four bytes.  Right?  Just the single
+char 0 ?
+
 The chunk size is in hexadecimal.
 In Ascii.  Followed by optional params.
 Ending with CrLf.
 The chunk is terminated by CrLf.
+
+CharBuf.setFromHexTo256( const CharBuf& hexBuf );
 
 
 
@@ -129,7 +135,13 @@ The chunk is terminated by CrLf.
 // ===== Then it has to get the chunk length
 // after that ending \r\n\r\n part.
 
-  if( fileBuf.contains( "\r\n\r\n" ))
+// ===== The chunk data is at endHeader + 4
+// plus what?
+
+  Int32 endHeader = fileBuf.findText(
+                             "\r\n\r\n", 0 );
+
+  if( endHeader > 0 )
     {
     StIO::putS( "\nGot full header." );
     fileBuf.showAscii();
