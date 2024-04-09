@@ -13,6 +13,15 @@
 
 
 
+// RFC 9110 Section 6. Message Abstraction
+// 6.4. Content
+
+// RFC 9112:
+// Section 7.1.
+// Chunked Transfer Coding
+
+
+
 
 #pragma once
 
@@ -45,4 +54,3 @@ class HttpChunk
     }
 
   };
-
