@@ -65,14 +65,23 @@ if( !clientTls.startHandshake(
   return;
   }
 
+
+// TE is what Transfer Encodings you will
+// accept.
+// Like:
+// TE: deflate
+// Transfer-Encoding is the response header.
+// Don't specify chunked with TE
+// because it is always acceptable.
+// TE: trailers
+// means you are willing to accept trailers.
+
 const char* getRequest = "GET / HTTP/1.1\r\n"
                "Host: www.durangoherald.com\r\n"
                "User-Agent: AINews\r\n"
                "Connection: keep-alive\r\n"
+               "TE: trailers\r\n"
                "\r\n";
-
-// Doesn't go in this request.
-//            "Transfer-Encoding: chunked\r\n"
 
 CharBuf appDataToSend;
 appDataToSend.setFromCharPoint( getRequest );
@@ -89,8 +98,8 @@ for( Int32 count = 0; count < 10000; count++ )
     break;
     }
 
-  StIO::putS(
-      "\nTop of MainApp.processData loop()." );
+  StIO::putS( 
+        "\nTop of Http::getWebPage() loop." );
 
   Int32 status = clientTls.processData(
                                   httpOutBuf,
@@ -101,9 +110,27 @@ for( Int32 count = 0; count < 10000; count++ )
 
   httpInBuf.appendToCharBuf( fileBuf, 10000 );
 
-/*
-Right after \r\n\r\n is the first chunk
-length.
+This fileBuf can be passed to HttpChunk with
+a start position.
+Actually, pass it to HttpChunkLine to get
+the _next_ chunk.  If it's there.
+
+====
+The hex size doesn't include the CR LF at
+the end of the chunk.
+
+The hex number can be any length, so make it
+no longer than 7 hex chars.
+If there are extensions after the hexidecimal
+numbers it is delimited by a semicolon.
+Like: 12AF;extension1;extension2;andsoon\r\n
+
+
+Right after \r\n\r\n at the end of
+the header is the first chunk
+length.  Like \r\n\r\n2000\r\n
+if there is no semicolon for extensions.
+
 
 ===== So how do you separate chunks?
 Get it here:
