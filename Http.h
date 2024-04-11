@@ -21,6 +21,7 @@
 #include "../CppBase/BasicTypes.h"
 #include "../CppBase/CharBuf.h"
 #include "../CppBase/CircleBuf.h"
+#include "HttpChunkLine.h"
 
 
 class Http
@@ -29,6 +30,7 @@ class Http
   bool testForCopy = false;
   CircleBuf httpOutBuf;
   CircleBuf httpInBuf;
+  HttpChunkLine httpChunkLine;
 
   public:
   Http( void )
@@ -49,6 +51,6 @@ class Http
     {
     }
 
-  void getWebPage( void );
+  bool getWebPage( void );
 
   };

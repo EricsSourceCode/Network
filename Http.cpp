@@ -34,9 +34,11 @@
 
 
 
-void Http::getWebPage( void )
+bool Http::getWebPage( void )
 {
 StIO::putS( "Getting web page." );
+
+httpChunkLine.clear();
 
 ClientTls clientTls;
 
@@ -62,7 +64,7 @@ if( !clientTls.startHandshake(
   StIO::putS(
         "ClientTls false on startHandshake." );
 
-  return;
+  return false;
   }
 
 
@@ -89,16 +91,18 @@ appDataToSend.setFromCharPoint( getRequest );
 // This will go out after the handshake.
 httpOutBuf.addCharBuf( appDataToSend );
 
-CharBuf fileBuf;
+Int32 endHeader = -1;
+CharBuf header;
+CharBuf getHttpBuf;
 for( Int32 count = 0; count < 10000; count++ )
   {
   if( Signals::getControlCSignal())
     {
     StIO::putS( "Closing on Ctrl-C." );
-    break;
+    return false;
     }
 
-  StIO::putS( 
+  StIO::putS(
         "\nTop of Http::getWebPage() loop." );
 
   Int32 status = clientTls.processData(
@@ -108,75 +112,51 @@ for( Int32 count = 0; count < 10000; count++ )
   if( status <= 0 )
     break;
 
-  httpInBuf.appendToCharBuf( fileBuf, 10000 );
+  httpInBuf.appendToCharBuf( getHttpBuf, 10000 );
 
-This fileBuf can be passed to HttpChunk with
-a start position.
-Actually, pass it to HttpChunkLine to get
-the _next_ chunk.  If it's there.
+  // Right after \r\n\r\n at the end of
+  // the header is the first chunk
+  // length.  Like \r\n\r\n2000\r\n
 
-====
-The hex size doesn't include the CR LF at
-the end of the chunk.
-
-The hex number can be any length, so make it
-no longer than 7 hex chars.
-If there are extensions after the hexidecimal
-numbers it is delimited by a semicolon.
-Like: 12AF;extension1;extension2;andsoon\r\n
-
-
-Right after \r\n\r\n at the end of
-the header is the first chunk
-length.  Like \r\n\r\n2000\r\n
-if there is no semicolon for extensions.
-
-
-===== So how do you separate chunks?
-Get it here:
-https://en.wikipedia.org/wiki/Chunked_transfer_encoding
-
-RFC 9112.
-Each chunk is preceded by its size in bytes.
-A zero length chunk means it's the end.
-A zero length chunk doesn't have two or
-four bytes.  Right?  Just the single
-char 0 ?
-
-The chunk size is in hexadecimal.
-In Ascii.  Followed by optional params.
-Ending with CrLf.
-The chunk is terminated by CrLf.
-
-CharBuf.setFromHexTo256( const CharBuf& hexBuf );
-
-
-
-  // The data Transfer-Encoding should
-  // be chunked, so there is no
-  // Content-Length.
-*/
-
-  // If it got the full header.
-
-// ===== Then it has to get the chunk length
-// after that ending \r\n\r\n part.
-
-// ===== The chunk data is at endHeader + 4
-// plus what?
-
-  Int32 endHeader = fileBuf.findText(
+  if( endHeader < 0 )
+    {
+    endHeader = getHttpBuf.findText(
                              "\r\n\r\n", 0 );
+
+    if( endHeader > 0 )
+      {
+      StIO::putS( "\nGot full header." );
+      header.copy( getHttpBuf );
+      header.showAscii();
+      StIO::putLF();
+      // Make sure the header says it is
+      // chunked:
+      // Transfer-Encoding: chunked.
+      }
+    }
 
   if( endHeader > 0 )
     {
-    StIO::putS( "\nGot full header." );
-    fileBuf.showAscii();
-    return;
+    if( !httpChunkLine.hasFirstChunk())
+      {
+      httpChunkLine.getFirstChunk(
+                              getHttpBuf,
+                              endHeader + 4 );
+
+      // ===========
+      // Break it off here for now.
+      return true;
+      }
+    else
+      {
+      // =======
+      // Get next chunk.
+      }
     }
 
   Threads::sleep( 50 );
   }
 
 StIO::putS( "Finished getting web page." );
+return true;
 }

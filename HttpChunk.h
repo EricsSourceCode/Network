@@ -34,6 +34,8 @@ class HttpChunk
   {
   private:
   bool testForCopy = false;
+  Int32 beginData = 0;
+  Int32 dataLength = 0;
 
   public:
   HttpChunk( void )
@@ -51,5 +53,15 @@ class HttpChunk
   ~HttpChunk( void )
     {
     }
+
+  inline Int32 getDataLength( void )
+    {
+    return dataLength;
+    }
+
+  void clear( void );
+  void copy( const HttpChunk& in );
+  bool getChunk( const CharBuf& inBuf,
+                 const Int32 where );
 
   };

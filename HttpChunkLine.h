@@ -18,30 +18,39 @@
 
 
 
+#include "HttpChunk.h"
 #include "../CppBase/BasicTypes.h"
 #include "../CppBase/CharBuf.h"
+#include "../CppBase/Casting.h"
 
 
 class HttpChunkLine
   {
   private:
   bool testForCopy = false;
+  HttpChunk* chunkArray;
+  Int32 arraySize = 2;
+  Int32 arrayLast = 0;
+  void resizeArrays( const Int32 toAdd );
 
   public:
-  HttpChunkLine( void )
+  HttpChunkLine( void );
+  HttpChunkLine( const HttpChunkLine& in );
+  ~HttpChunkLine( void );
+
+  void clear();
+  bool hasFirstChunk( void )
     {
+    if( arrayLast > 0 )
+      return true;
+
+    return false;
     }
 
-  HttpChunkLine( const HttpChunkLine& in )
-    {
-    if( in.testForCopy )
-      return;
+  bool getFirstChunk( const CharBuf& inBuf,
+                       const Int32 where );
 
-    throw "HttpChunkLine copy constructor.";
-    }
-
-  ~HttpChunkLine( void )
-    {
-    }
+  // bool getNextChunk( const CharBuf& inBuf,
+  //                    const Int32 where );
 
   };
