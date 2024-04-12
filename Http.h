@@ -22,6 +22,7 @@
 #include "../CppBase/CharBuf.h"
 #include "../CppBase/CircleBuf.h"
 #include "HttpChunkLine.h"
+#include "ClientTls.h"
 
 
 class Http
@@ -31,6 +32,8 @@ class Http
   CircleBuf httpOutBuf;
   CircleBuf httpInBuf;
   HttpChunkLine httpChunkLine;
+  CharBuf getHttpBuf;
+  ClientTls clientTls;
 
   public:
   Http( void )
@@ -52,5 +55,6 @@ class Http
     }
 
   bool getWebPage( void );
+  bool getAllChunks( void );
 
   };

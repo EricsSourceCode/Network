@@ -50,7 +50,7 @@ class HttpChunkLine
   bool getFirstChunk( const CharBuf& inBuf,
                        const Int32 where );
 
-  // bool getNextChunk( const CharBuf& inBuf,
-  //                    const Int32 where );
+  bool getNextChunk( const CharBuf& inBuf );
+  bool hasAllChunks( void );
 
   };

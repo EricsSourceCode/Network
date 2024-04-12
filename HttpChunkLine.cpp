@@ -99,16 +99,39 @@ return true;
 }
 
 
-/*
 bool HttpChunkLine::getNextChunk(
-                const CharBuf& inBuf,
-                const Int32 where )
+                        const CharBuf& inBuf )
 {
+StIO::putS(
+        "\nTop of getNextChunk." );
 
+if( arrayLast < 1 )
+  throw "arrayLast < 1 in getNextChunk.";
+
+// How many chunks in a big file?
+if( arrayLast >= arraySize )
+  resizeArrays( 1024 * 2 );
+
+StIO::printF( "arrayLast: " );
+StIO::printFD( arrayLast );
+StIO::putLF();
+
+
+// Int32 nextStart = 
 
 return true;
 }
-*/
+
+
+
+bool HttpChunkLine::hasAllChunks( void )
+{
+//  Int32 arrayLast = 0;
+
+return false;
+}
+
+
 
 
 

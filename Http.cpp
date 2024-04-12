@@ -16,16 +16,8 @@
 #include "Http.h"
 #include "../CppBase/StIO.h"
 #include "../WinApi/Signals.h"
-#include "ClientTls.h"
 #include "../CppBase/Threads.h"
 
-
-// Look for: </html>
-// Make sure it's all there.
-
-
-// https://en.wikipedia.org/wiki/
-//               List_of_HTTP_header_fields
 
 
 // HTTP/1.1
@@ -40,14 +32,6 @@ StIO::putS( "Getting web page." );
 
 httpChunkLine.clear();
 
-ClientTls clientTls;
-
-
-// Add other news sites like Leadville,
-// The Economist, etc.
-
-// "https://www.msnbc.com/"
-// "https://www.foxnews.com/"
 
 // if( !clientTls.startHandshake( "127.0.0.1",
 //                               "443" ))
@@ -93,7 +77,7 @@ httpOutBuf.addCharBuf( appDataToSend );
 
 Int32 endHeader = -1;
 CharBuf header;
-CharBuf getHttpBuf;
+getHttpBuf.clear();
 for( Int32 count = 0; count < 10000; count++ )
   {
   if( Signals::getControlCSignal())
@@ -103,14 +87,17 @@ for( Int32 count = 0; count < 10000; count++ )
     }
 
   StIO::putS(
-        "\nTop of Http::getWebPage() loop." );
+        "\nHttp::getWebPage() loop." );
 
   Int32 status = clientTls.processData(
                                   httpOutBuf,
                                   httpInBuf );
 
   if( status <= 0 )
-    break;
+    {
+    StIO::putS( "ClientTls returned <= 0" );
+    return false;
+    }
 
   httpInBuf.appendToCharBuf( getHttpBuf, 10000 );
 
@@ -123,40 +110,80 @@ for( Int32 count = 0; count < 10000; count++ )
     endHeader = getHttpBuf.findText(
                              "\r\n\r\n", 0 );
 
+    // If it just found it for the first time.
     if( endHeader > 0 )
       {
-      StIO::putS( "\nGot full header." );
-      header.copy( getHttpBuf );
-      header.showAscii();
-      StIO::putLF();
       // Make sure the header says it is
       // chunked:
       // Transfer-Encoding: chunked.
+
+      StIO::putS( "\n\nGot full header." );
+      header.copy( getHttpBuf );
+      header.showAscii();
+      StIO::putS( "\n\n" );
+
+      // parseHeader()
       }
     }
 
   if( endHeader > 0 )
     {
-    if( !httpChunkLine.hasFirstChunk())
-      {
-      httpChunkLine.getFirstChunk(
-                              getHttpBuf,
-                              endHeader + 4 );
+    if( httpChunkLine.hasFirstChunk())
+      break;
 
-      // ===========
-      // Break it off here for now.
-      return true;
-      }
-    else
-      {
-      // =======
-      // Get next chunk.
-      }
+    httpChunkLine.getFirstChunk( getHttpBuf,
+                              endHeader + 4 );
     }
 
   Threads::sleep( 50 );
   }
 
-StIO::putS( "Finished getting web page." );
+return getAllChunks();
+}
+
+
+
+bool Http::getAllChunks( void )
+{
+StIO::putS( "Getting all chunks." );
+
+for( Int32 count = 0; count < 10000; count++ )
+  {
+  if( Signals::getControlCSignal())
+    {
+    StIO::putS( "Closing on Ctrl-C." );
+    return false;
+    }
+
+  StIO::putS(
+        "\ngetAllChunks loop." );
+
+  Int32 status = clientTls.processData(
+                                  httpOutBuf,
+                                  httpInBuf );
+
+  if( status <= 0 )
+    {
+    StIO::putS( "ClientTls returned <= 0" );
+    return false;
+    }
+
+  httpInBuf.appendToCharBuf( getHttpBuf, 10000 );
+
+  if( !httpChunkLine.getNextChunk( getHttpBuf ))
+    return false;
+
+  if( httpChunkLine.hasAllChunks())
+    {
+    StIO::putS( "It has all chunks.\n\n" );
+    return true;
+    }
+
+  Threads::sleep( 50 );
+  }
+
+StIO::putS( "It should never get here." );
 return true;
 }
+
+
