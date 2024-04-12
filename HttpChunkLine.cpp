@@ -87,16 +87,23 @@ bool HttpChunkLine::getFirstChunk(
                 const CharBuf& inBuf,
                 const Int32 where )
 {
-arrayLast = 1;
-
 if( !chunkArray[0].getChunk( inBuf, where ))
   {
   arrayLast = 0;
   return false;
   }
 
+StIO::putS( "After got first chunk." );
+Int32 begin = chunkArray[0].getBeginData();
+
+StIO::printF( "begin first: " );
+StIO::printFD( begin );
+StIO::putLF();
+
+arrayLast = 1;
 return true;
 }
+
 
 
 bool HttpChunkLine::getNextChunk(
@@ -108,16 +115,60 @@ StIO::putS(
 if( arrayLast < 1 )
   throw "arrayLast < 1 in getNextChunk.";
 
+if( hasAllChunks())
+  return true;
+
 // How many chunks in a big file?
-if( arrayLast >= arraySize )
+if( (arrayLast + 2) >= arraySize )
   resizeArrays( 1024 * 2 );
 
 StIO::printF( "arrayLast: " );
 StIO::printFD( arrayLast );
 StIO::putLF();
 
+StIO::printF( "arraySize: " );
+StIO::printFD( arraySize );
+StIO::putLF();
 
-// Int32 nextStart = 
+const Int32 where = arrayLast - 1;
+
+Int32 begin = chunkArray[where].getBeginData();
+Int32 length = chunkArray[where].getDataLength();
+
+StIO::printF( "begin: " );
+StIO::printFD( begin );
+StIO::putLF();
+
+StIO::printF( "length: " );
+StIO::printFD( length );
+StIO::putLF();
+
+// The hex size for dataLength doesn't
+// include the CR LF at the end of the chunk.
+
+const Int32 nextStart = begin + length + 2;
+const Int32 inBufLast = inBuf.getLast();
+
+StIO::printF( "nextStart: " );
+StIO::printFD( nextStart );
+StIO::putLF();
+
+StIO::printF( "inBufLast: " );
+StIO::printFD( inBufLast );
+StIO::putLF();
+
+if( (nextStart + 3) >= inBufLast )
+  {
+  StIO::putS( 
+     "Not enough data for next chunk." );
+  return true;
+  }
+
+if( chunkArray[where + 1].getChunk( inBuf, 
+                                 nextStart ))
+  {
+  arrayLast++;
+  }
 
 return true;
 }
@@ -126,7 +177,14 @@ return true;
 
 bool HttpChunkLine::hasAllChunks( void )
 {
-//  Int32 arrayLast = 0;
+if( arrayLast < 1 )
+  return false;
+
+const Int32 where = arrayLast - 1;
+
+Int32 length = chunkArray[where].getDataLength();
+if( length == 0 )
+  return true;
 
 return false;
 }

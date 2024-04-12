@@ -34,6 +34,7 @@ class HttpChunk
   {
   private:
   bool testForCopy = false;
+  Int32 beginHexTag = 0;
   Int32 beginData = 0;
   Int32 dataLength = 0;
 
@@ -54,7 +55,17 @@ class HttpChunk
     {
     }
 
-  inline Int32 getDataLength( void )
+  inline Int32 getBeginHexTag( void ) const
+    {
+    return beginHexTag;
+    }
+
+  inline Int32 getBeginData( void ) const
+    {
+    return beginData;
+    }
+
+  inline Int32 getDataLength( void ) const
     {
     return dataLength;
     }

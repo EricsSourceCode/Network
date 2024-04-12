@@ -185,5 +185,3 @@ for( Int32 count = 0; count < 10000; count++ )
 StIO::putS( "It should never get here." );
 return true;
 }
-
-

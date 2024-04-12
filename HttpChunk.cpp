@@ -27,6 +27,8 @@ void HttpChunk::clear( void )
 
 void HttpChunk::copy( const HttpChunk& in )
 {
+beginHexTag = in.beginHexTag;
+beginData = in.beginData;
 dataLength = in.dataLength;
 }
 
@@ -38,6 +40,10 @@ bool HttpChunk::getChunk( const CharBuf& inBuf,
 if( !inBuf.findText( "\r\n", where ))
   return false;
 
+const Int32 inBufLast = inBuf.getLast();
+
+beginHexTag = where;
+
 bool gotExtension = false;
 CharBuf hexBuf;
 
@@ -48,6 +54,9 @@ CharBuf hexBuf;
 for( Int32 count = where; count < (where + 6);
                                        count++ )
   {
+  if( count >= inBufLast )
+    return false;
+
   char oneChar = inBuf.getC( count );
   if( oneChar == '\r' )
     {
@@ -83,3 +92,4 @@ StIO::putLF();
 
 return true;
 }
+
