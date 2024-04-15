@@ -15,6 +15,7 @@
 
 #include "Http.h"
 #include "../CppBase/StIO.h"
+#include "../CppBase/FileIO.h"
 #include "../WinApi/Signals.h"
 #include "../CppBase/Threads.h"
 
@@ -176,6 +177,19 @@ for( Int32 count = 0; count < 10000; count++ )
   if( httpChunkLine.hasAllChunks())
     {
     StIO::putS( "It has all chunks.\n\n" );
+
+    CharBuf fileBuf;
+    httpChunkLine.assembleChunks( fileBuf,
+                                  getHttpBuf );
+    StIO::putS( "\n\n\nWhole File:\n" );
+    fileBuf.showAscii();
+    StIO::putS( "\n\n\nEnd of file.\n" );
+
+    FileIO::writeAll(
+                  Configure::getHtmlFileName(),
+                  fileBuf );
+
+    // But what about the Trailer?
     return true;
     }
 

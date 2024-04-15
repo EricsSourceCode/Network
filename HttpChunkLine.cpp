@@ -105,7 +105,6 @@ return true;
 }
 
 
-
 bool HttpChunkLine::getNextChunk(
                         const CharBuf& inBuf )
 {
@@ -159,12 +158,12 @@ StIO::putLF();
 
 if( (nextStart + 3) >= inBufLast )
   {
-  StIO::putS( 
+  StIO::putS(
      "Not enough data for next chunk." );
   return true;
   }
 
-if( chunkArray[where + 1].getChunk( inBuf, 
+if( chunkArray[where + 1].getChunk( inBuf,
                                  nextStart ))
   {
   arrayLast++;
@@ -189,6 +188,34 @@ if( length == 0 )
 return false;
 }
 
+
+
+void HttpChunkLine::assembleChunks(
+                       CharBuf& toGet,
+                       const CharBuf& inBuf )
+{
+toGet.clear();
+
+const Int32 max = arrayLast;
+for( Int32 count = 0; count < max; count++ )
+  {
+  Int32 begin = chunkArray[count].getBeginData();
+  Int32 length = chunkArray[count].
+                            getDataLength();
+  if( length == 0 )
+    {
+    // But what about the Trailer?
+    break;
+    }
+
+  Int32 where = begin;
+  for( Int32 bytes = 0; bytes < length; bytes++ )
+    {
+    toGet.appendU8( inBuf.getU8( where ));
+    where++;
+    }
+  }
+}
 
 
 

@@ -24,6 +24,10 @@
 #include "HttpChunkLine.h"
 #include "ClientTls.h"
 
+// Move this out so the general Http is not
+// depending on this.
+#include "../AINews/Configure.h"
+
 
 class Http
   {

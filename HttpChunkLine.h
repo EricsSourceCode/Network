@@ -52,5 +52,6 @@ class HttpChunkLine
 
   bool getNextChunk( const CharBuf& inBuf );
   bool hasAllChunks( void );
-
+  void assembleChunks( CharBuf& toGet,
+                       const CharBuf& inBuf );
   };
