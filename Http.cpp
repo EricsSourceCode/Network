@@ -27,7 +27,7 @@
 
 
 
-bool Http::getWebPage( void )
+bool Http::getWebPage( const CharBuf& fileName )
 {
 StIO::putS( "Getting web page." );
 
@@ -139,12 +139,12 @@ for( Int32 count = 0; count < 10000; count++ )
   Threads::sleep( 50 );
   }
 
-return getAllChunks();
+return getAllChunks( fileName );
 }
 
 
 
-bool Http::getAllChunks( void )
+bool Http::getAllChunks( const CharBuf& fileName )
 {
 StIO::putS( "Getting all chunks." );
 
@@ -185,8 +185,7 @@ for( Int32 count = 0; count < 10000; count++ )
     fileBuf.showAscii();
     StIO::putS( "\n\n\nEnd of file.\n" );
 
-    FileIO::writeAll(
-                  Configure::getHtmlFileName(),
+    FileIO::writeAll( fileName,
                   fileBuf );
 
     // But what about the Trailer?

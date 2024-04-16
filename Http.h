@@ -24,9 +24,6 @@
 #include "HttpChunkLine.h"
 #include "ClientTls.h"
 
-// Move this out so the general Http is not
-// depending on this.
-#include "../AINews/Configure.h"
 
 
 class Http
@@ -58,7 +55,7 @@ class Http
     {
     }
 
-  bool getWebPage( void );
-  bool getAllChunks( void );
+  bool getWebPage( const CharBuf& fileName );
+  bool getAllChunks( const CharBuf& fileName );
 
   };
