@@ -38,7 +38,7 @@ class HttpChunkLine
   HttpChunkLine( const HttpChunkLine& in );
   ~HttpChunkLine( void );
 
-  void clear();
+  // void clear();
   bool hasFirstChunk( void )
     {
     if( arrayLast > 0 )

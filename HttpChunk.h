@@ -70,7 +70,7 @@ class HttpChunk
     return dataLength;
     }
 
-  void clear( void );
+  // void clear( void );
   void copy( const HttpChunk& in );
   bool getChunk( const CharBuf& inBuf,
                  const Int32 where );

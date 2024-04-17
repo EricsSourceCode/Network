@@ -18,10 +18,9 @@
 #include "../CppBase/ByteHex.h"
 
 
-void HttpChunk::clear( void )
-{
-
-}
+// void HttpChunk::clear( void )
+// {
+// }
 
 
 
@@ -73,8 +72,8 @@ for( Int32 count = where; count < (where + 6);
       // by a semicolon.
 
       gotExtension = true;
-      StIO::putS( "Chunk has extensions." );
-      continue;
+      throw "Chunk has extensions.";
+      // continue;
       }
 
     hexBuf.appendChar( oneChar );
@@ -86,9 +85,10 @@ for( Int32 count = where; count < (where + 6);
 
 dataLength = ByteHex::charBufToInt32( hexBuf );
 
-StIO::printF( "dataLength: " );
-StIO::printFD( dataLength );
-StIO::putLF();
+// StIO::printF( "dataLength: " );
+// StIO::printFD( dataLength );
+// StIO::putLF();
 
 return true;
 }
+

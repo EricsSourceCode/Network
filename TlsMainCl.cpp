@@ -135,9 +135,9 @@ for( Int32 count = 0; count < max; count++ )
     recordBytes.clear();
     tlsOuterRead.copyBytes( recordBytes );
     Int32 recBytesLast = recordBytes.getLast();
-    StIO::printF( "recordBytes last: " );
-    StIO::printFD( recBytesLast );
-    StIO::putLF();
+    // StIO::printF( "recordBytes last: " );
+    // StIO::printFD( recBytesLast );
+    // StIO::putLF();
 
     Uint8 recType = tlsOuterRead.getRecordType();
     tlsOuterRead.clear();
@@ -515,10 +515,10 @@ if( messageType == TlsOuterRec::ApplicationData )
 
   appInBuf.addCharBuf( messages );
 
-  StIO::printF( "appInBuf size:: " );
-  Int32 appLast = appInBuf.getHowMany();
-  StIO::printFD( appLast );
-  StIO::putLF();
+  // StIO::printF( "appInBuf size:: " );
+  // Int32 appLast = appInBuf.getHowMany();
+  // StIO::printFD( appLast );
+  // StIO::putLF();
 
   return 1;
   }
@@ -803,8 +803,8 @@ return true;
 
 
 bool TlsMainCl::startHandshake(
-                        const CharBuf& urlDomain,
-                        const CharBuf& port )
+                      const CharBuf& urlDomain,
+                      const CharBuf& port )
 {
 StIO::putS( "Connecting to server." );
 

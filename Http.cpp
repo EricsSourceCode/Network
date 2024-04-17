@@ -30,9 +30,10 @@
 bool Http::getWebPage( const CharBuf& fileName )
 {
 StIO::putS( "Getting web page." );
+fileName.showAscii();
+StIO::putS( "\n\n" );
 
-httpChunkLine.clear();
-
+// httpChunkLine.clear();
 
 // if( !clientTls.startHandshake( "127.0.0.1",
 //                               "443" ))
@@ -41,9 +42,11 @@ httpChunkLine.clear();
 //                             "127.0.0.1",
 //                             "443" ))
 
+CharBuf domain;
+domain.appendCharPt( "durangoherald.com" );
 
 if( !clientTls.startHandshake(
-                        "durangoherald.com",
+                        domain,
                         "443" ))
   {
   StIO::putS(
@@ -63,15 +66,28 @@ if( !clientTls.startHandshake(
 // TE: trailers
 // means you are willing to accept trailers.
 
+// "www." + domain
+
+CharBuf appDataToSend;
+
 const char* getRequest = "GET / HTTP/1.1\r\n"
-               "Host: www.durangoherald.com\r\n"
+                         "Host: www.";
+
+appDataToSend.appendCharPt( getRequest );
+
+appDataToSend.appendCharBuf( domain );
+
+const char* getRequest2 = "\r\n"
                "User-Agent: AINews\r\n"
                "Connection: keep-alive\r\n"
                "TE: trailers\r\n"
                "\r\n";
 
-CharBuf appDataToSend;
-appDataToSend.setFromCharPoint( getRequest );
+appDataToSend.appendCharPt( getRequest2 );
+
+StIO::putS( "Get Request:" );
+appDataToSend.showAscii();
+StIO::putS( "\n\n" );
 
 // This will go out after the handshake.
 httpOutBuf.addCharBuf( appDataToSend );
@@ -118,10 +134,12 @@ for( Int32 count = 0; count < 10000; count++ )
       // chunked:
       // Transfer-Encoding: chunked.
 
-      StIO::putS( "\n\nGot full header." );
+      // StIO::putS( "\n\nGot full header." );
+
       header.copy( getHttpBuf );
-      header.showAscii();
-      StIO::putS( "\n\n" );
+
+      // header.showAscii();
+      // StIO::putS( "\n\n" );
 
       // parseHeader()
       }
@@ -157,7 +175,7 @@ for( Int32 count = 0; count < 10000; count++ )
     }
 
   StIO::putS(
-        "\ngetAllChunks loop." );
+        "getAllChunks loop." );
 
   Int32 status = clientTls.processData(
                                   httpOutBuf,
@@ -176,14 +194,14 @@ for( Int32 count = 0; count < 10000; count++ )
 
   if( httpChunkLine.hasAllChunks())
     {
-    StIO::putS( "It has all chunks.\n\n" );
+    // StIO::putS( "It has all chunks.\n\n" );
 
     CharBuf fileBuf;
     httpChunkLine.assembleChunks( fileBuf,
                                   getHttpBuf );
-    StIO::putS( "\n\n\nWhole File:\n" );
-    fileBuf.showAscii();
-    StIO::putS( "\n\n\nEnd of file.\n" );
+    // StIO::putS( "\n\n\nWhole File:\n" );
+    // fileBuf.showAscii();
+    // StIO::putS( "\n\n\nEnd of file.\n" );
 
     FileIO::writeAll( fileName,
                   fileBuf );
@@ -192,7 +210,7 @@ for( Int32 count = 0; count < 10000; count++ )
     return true;
     }
 
-  Threads::sleep( 50 );
+  Threads::sleep( 15 );
   }
 
 StIO::putS( "It should never get here." );
