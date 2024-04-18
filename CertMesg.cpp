@@ -44,10 +44,8 @@ StIO::putLF();
 
 if( last < 4 )
   {
-  StIO::putS(
-      "parseCertMsg: certBuf last < 4." );
-
-  return Results::Done;
+  throw "parseCertMsg: certBuf last < 4.";
+  // return Results:: something.
   }
 
 Uint8 certType = certBuf.getU8( 0 );
@@ -79,153 +77,80 @@ Int32 index = 4;
 
 if( (index + 3) >= last )
   {
-  StIO::putS( "Nothing left in certBuf." );
-  return Results::Done;
+  throw "Nothing left in certBuf.";
+  // return Results::  something;
   }
 
-Uint32 certLength = certBuf.getU8( index );
-index++;
-certLength <<= 8;
-certLength |= certBuf.getU8( index );
-index++;
-certLength <<= 8;
-certLength |= certBuf.getU8( index );
-index++;
-
-// if( certLength == 0 )
-
-StIO::printF( "certLength: " );
-StIO::printFUD( certLength );
-StIO::putLF();
-
-CharBuf oneCertBuf;
-
-for( Uint32 count = 0; count < certLength;
-                                count++ )
+for( Int32 certCount = 0; certCount < 100;
+                            certCount++ )
   {
-  oneCertBuf.appendU8(
-                    certBuf.getU8( index ));
+  Uint32 certLength = certBuf.getU8( index );
   index++;
-  }
+  certLength <<= 8;
+  certLength |= certBuf.getU8( index );
+  index++;
+  certLength <<= 8;
+  certLength |= certBuf.getU8( index );
+  index++;
 
-Certificate cert;
+  // if( certLength == 0 )
+  // Or if it is too big...
 
-// if result is an alert...
+  StIO::printF( "certLength: " );
+  StIO::printFUD( certLength );
+  StIO::putLF();
 
-Uint32 result = cert.parseOneCert(
+  CharBuf oneCertBuf;
+
+  for( Uint32 count = 0; count < certLength;
+                                count++ )
+    {
+    oneCertBuf.appendU8(
+                    certBuf.getU8( index ));
+    index++;
+    }
+
+  Certificate cert;
+
+  // if result is an alert...
+
+  Uint32 result = cert.parseOneCert(
                             oneCertBuf,
                             tlsMain );
 
-if( result != Results::Done )
-  {
-  StIO::putS( "cert.parseOneCert was bad." );
-  return result;
-  }
-
-
-if( (index + 3) >= last )
-  {
-  StIO::putS( "Nothing left in certBuf." );
-  return Results::Done;
-  }
-
-certLength = certBuf.getU8( index );
-index++;
-certLength <<= 8;
-certLength |= certBuf.getU8( index );
-index++;
-certLength <<= 8;
-certLength |= certBuf.getU8( index );
-index++;
-
-// if( certLength == 0 )
-
-StIO::printF( "certLength: " );
-StIO::printFUD( certLength );
-StIO::putLF();
-
-if( (index + 3) >= last )
-  {
-  StIO::putS( "Nothing left in certBuf." );
-  return Results::Done;
-  }
-
-// Why is this derLength two bytes?
-Uint32 derLength = certBuf.getU8( index );
-index++;
-derLength <<= 8;
-derLength |= certBuf.getU8( index );
-index++;
-
-StIO::printF( "derLength: " );
-StIO::printFUD( derLength );
-StIO::putLF();
-
-
-oneCertBuf.clear();
-for( Uint32 count = 0; count < derLength;
-                                count++ )
-  {
-  oneCertBuf.appendU8(
-                    certBuf.getU8( index ));
-  index++;
-  }
-
-
-// result =
-cert.parseOneCert( oneCertBuf, tlsMain );
-
-// if( result != Results::Done )
-
-
-
-// CharBuf showDerBuf;
-// For testing:
-// DerEncodeLoop derEncodeLoop;
-// derEncodeLoop.readAllTags( certBuf, index,
-//                           showDerBuf, 0 );
-
-// const char* certStatusFileName =
-// "\\Eric\\main\\TlsClient\\CertExtenStatus.txt";
-
-// FileIO::writeAll( certStatusFileName,
-//                   showDerBuf );
-
-/*
-CharBuf showBytes;
-Int32 howMany = 0;
-for( Int32 count = 0; count < 1000000; count++ )
-  {
-  if( index >= last )
-    break;
-
-  showBytes.appendU8( certBuf.getU8( index ));
-
-  Uint8 sequenceCheck = certBuf.getU8( index );
-  sequenceCheck = sequenceCheck & 0x1F;
-  if( sequenceCheck == DerEncode::SequenceTag )
+  if( result != Results::Done )
     {
-    StIO::putLF();
-    StIO::printF( "howMany: " );
-    StIO::printFD( howMany );
-    StIO::putLF();
-    // break;
+    throw "cert.parseOneCert was bad.";
+    // return result;
     }
 
-  howMany++;
+  if( (index + 3) >= last )
+    {
+    StIO::putS( "Nothing left in certBuf." );
+    return Results::Done;
+    }
+
+
+  // The extensions that come after a
+  // certificate.
+  // Two bytes for the length.
+  Uint32 extenLength = certBuf.getU8( index );
   index++;
+  extenLength <<= 8;
+  extenLength |= certBuf.getU8( index );
+  index++;
+  StIO::printF( "extenLength: " );
+  StIO::printFUD( extenLength );
+  StIO::putLF();
+
+  // Do something with these extensions.
+  if( extenLength != 0 )
+    throw "CertMesg extenLength != 0";
+
   }
 
-StIO::putLF();
-StIO::putS( "showBytes: " );
-
-showBytes.showHex();
-
-StIO::putLF();
-*/
-
-StIO::putLF();
-StIO::putS( "End of CertMessage." );
+StIO::putS( "\nEnd of CertMessage.\n\n" );
 
 return Results::Done;
 }
+

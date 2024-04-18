@@ -8,7 +8,7 @@
 // https://www.gnu.org/licenses/gpl-3.0.html
 
 
-// See https://ericinarizona.github.io/
+// See https://ericssourcecode.github.io/
 // For guides and information.
 
 
@@ -18,7 +18,6 @@
 #include "../CppBase/BasicTypes.h"
 #include "../CppBase/CharBuf.h"
 #include "../CppInt/IntegerMath.h"
-// #include "DerEncode.h"
 #include "Alerts.h"
 #include "Results.h"
 #include "TlsMain.h"

@@ -103,8 +103,7 @@ for( Int32 count = 0; count < 10000; count++ )
     return false;
     }
 
-  StIO::putS(
-        "\nHttp::getWebPage() loop." );
+  // StIO::putS( "Http::getWebPage() loop." );
 
   Int32 status = clientTls.processData(
                                   httpOutBuf,
@@ -174,8 +173,7 @@ for( Int32 count = 0; count < 10000; count++ )
     return false;
     }
 
-  StIO::putS(
-        "getAllChunks loop." );
+  // StIO::putS( "getAllChunks loop." );
 
   Int32 status = clientTls.processData(
                                   httpOutBuf,

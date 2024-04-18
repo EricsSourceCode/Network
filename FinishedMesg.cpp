@@ -23,19 +23,23 @@ Uint32 FinishedMesg::parseMsg(
                   const CharBuf& finishBuf,
                   TlsMain& tlsMain )
 {
-StIO::putS(
-      "Parsing Finished Message." );
+// Make it a used parameter.
+const Int32 last = finishBuf.getLast();
+if( last < 1 )
+  return Results::Done;
+
+StIO::putS( "Parsing Finished Message." );
 
 // Set cl or srv message?
 // tlsMain.setFinishedMsg( finishBuf );
 tlsMain.setNeedsWorkDone( true );
 
-StIO::putLF();
-finishBuf.showHex();
-StIO::putLF();
+// StIO::putLF();
+// finishBuf.showHex();
+// StIO::putLF();
 
-StIO::putLF();
-StIO::putS( "End of Finished Message." );
+// StIO::putLF();
+// StIO::putS( "End of Finished Message." );
 
 return Results::Done;
 }

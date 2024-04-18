@@ -38,9 +38,9 @@ if( sequenceCheck != DerEncode::SequenceTag )
   throw "parseCertChain sequenceCheck bad.";
 
 // For testing:
-DerEncodeLoop derEncodeLoop;
-derEncodeLoop.readAllTags( certBuf, 0,
-                            statusBuf, 0 );
+// DerEncodeLoop derEncodeLoop;
+// derEncodeLoop.readAllTags( certBuf, 0,
+//                            statusBuf, 0 );
 
 
 // Test vector certificate is in RFC 8448:
@@ -153,7 +153,7 @@ for( Int32 count = 0; count < 100; count++ )
   // Just one BitStringTag.
   }
 
-FileIO::writeAll( statusFileName, statusBuf );
+// FileIO::writeAll( statusFileName, statusBuf );
 
 return Results::Done;
 }

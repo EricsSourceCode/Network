@@ -50,9 +50,10 @@ if( last == 1 )
   {
   recordType = allBytes.getU8( 0 );
 
-  StIO::printF( "accumByte HandshakeCl type: " );
-  StIO::printFUD( recordType );
-  StIO::putLF();
+  // StIO::printF( "accumByte HandshakeCl type: " );
+  // StIO::printFUD( recordType );
+  // StIO::putLF();
+
   return Results::Continue; // Keep adding bytes.
   }
 
@@ -109,9 +110,10 @@ if( last == 4 )
     return Alerts::RecordOverflow;
     }
 
-  StIO::printF( "Handshake record length: " );
-  StIO::printFD( recLength );
-  StIO::putLF();
+  // StIO::printF( "Handshake record length: " );
+  // StIO::printFD( recLength );
+  // StIO::putLF();
+
   return Results::Continue;
   }
 
@@ -137,11 +139,10 @@ Uint32 HandshakeCl::parseMessage(
 {
 StIO::putS( "Doing HandShakeCl parseMessage()." );
 
-const Int32 last = allBytes.getLast();
-
-StIO::printF( "HandshakeCl parse last: " );
-StIO::printFD( last );
-StIO::putLF();
+// const Int32 last = allBytes.getLast();
+// StIO::printF( "HandshakeCl parse last: " );
+// StIO::printFD( last );
+// StIO::putLF();
 
 recordType = allBytes.getU8( 0 );
 
@@ -191,10 +192,12 @@ if( recordType == Handshake::ServerHelloID )
 
 if( recordType == Handshake::NewSessionTicketID )
   {
-  StIO::putLF();
-  StIO::putS( "NewSessionTicketID hex:" );
-  allBytes.showHex();
-  StIO::putLF();
+  StIO::putS( "NewSessionTicketID" );
+
+  // StIO::putLF();
+  // StIO::putS( "NewSessionTicketID hex:" );
+  // allBytes.showHex();
+  // StIO::putLF();
 
   MsgID = Handshake::NewSessionTicketID;
   return Results::Done;
@@ -292,7 +295,7 @@ if( recordType ==
 
 if( recordType == Handshake::FinishedID )
   {
-  StIO::putS( "FinishedID" );
+  // StIO::putS( "FinishedID" );
 
   // It came from the server.
   tlsMain.setSrvWriteFinishedMsg( allBytes );
@@ -354,14 +357,15 @@ Uint32 HandshakeCl::processInBuf(
                      Uint8& MsgID,
                      EncryptTls& encryptTls )
 {
-StIO::putS( "\nHandshakeCl processInBuf." );
+StIO::putS( "HandshakeCl processInBuf." );
 
 // StIO::printFStack();
 
 const Int32 recvLast = inBuf.getLast();
-StIO::printF( "recvLast: " );
-StIO::printFD( recvLast );
-StIO::putLF();
+
+// StIO::printF( "recvLast: " );
+// StIO::printFD( recvLast );
+// StIO::putLF();
 
 for( Int32 count = 0; count < recvLast; count++ )
   circBufIn.addU8( inBuf.getU8( count ));

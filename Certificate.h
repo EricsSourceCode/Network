@@ -37,8 +37,8 @@ class Certificate
   private:
   bool testForCopy = false;
   CharBuf statusBuf;
-  const char* statusFileName =
-      "\\Eric\\main\\TlsClient\\CertStatus.txt";
+  // const char* statusFileName =
+  //  "\\Eric\\main\\TlsClient\\CertStatus.txt";
 
   Integer serialNum;
   Integer pubKeyNum;
@@ -62,6 +62,7 @@ class Certificate
 
   Uint32 parseOneCert( const CharBuf& certBuf,
                         TlsMain& tlsMain );
+
   Uint32 parseTbsCert( const CharBuf& certBuf,
                        TlsMain& tlsMain );
 

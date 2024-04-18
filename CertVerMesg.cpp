@@ -26,9 +26,9 @@ StIO::putS(
 
 tlsMain.setCertVerifyMsg( certVerBuf );
 
-StIO::putLF();
-certVerBuf.showHex();
-StIO::putLF();
+// StIO::putLF();
+// certVerBuf.showHex();
+// StIO::putLF();
 
 
 

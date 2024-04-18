@@ -62,9 +62,9 @@ if( encryptTls.getAppKeysSet())
   if( outLast > 0 )
     {
     StIO::putS( "Sending app data." );
-    outerRecBuf.showHex();
-    plainBuf.showAscii();
-    StIO::putLF();
+    // outerRecBuf.showHex();
+    // plainBuf.showAscii();
+    // StIO::putLF();
 
     howMany = netClient.sendCharBuf(
                             outerRecBuf );
@@ -229,7 +229,7 @@ return 1;
 Int32 TlsMainCl::processHandshake(
                      const CharBuf& inBuf )
 {
-StIO::putS( "processHandshake" );
+StIO::putS( "TlsMainCl.processHandshake()" );
 
 CharBuf inBufOnce;
 inBufOnce.copy( inBuf );
@@ -262,9 +262,9 @@ for( Int32 count = 0; count < 100; count++ )
   if( hResult == Results::Continue )
     return 1;
 
-  StIO::printF( "msgID: " );
-  StIO::printFUD( msgID );
-  StIO::putLF();
+  // StIO::printF( "msgID: " );
+  // StIO::printFUD( msgID );
+  // StIO::putLF();
 
   // This isn't right.
   // NewSessionTicketID can be out of order.
