@@ -94,12 +94,12 @@ if( !chunkArray[0].getChunk( inBuf, where ))
   return false;
   }
 
-// StIO::putS( "After got first chunk." );
-// Int32 begin = chunkArray[0].getBeginData();
+StIO::putS( "After got first chunk." );
+Int32 begin = chunkArray[0].getBeginData();
 
-// StIO::printF( "begin first: " );
-// StIO::printFD( begin );
-// StIO::putLF();
+StIO::printF( "begin first: " );
+StIO::printFD( begin );
+StIO::putLF();
 
 arrayLast = 1;
 return true;
@@ -109,8 +109,8 @@ return true;
 bool HttpChunkLine::getNextChunk(
                         const CharBuf& inBuf )
 {
-// StIO::putS(
-//        "\nTop of getNextChunk." );
+StIO::putS(
+        "\nTop of getNextChunk." );
 
 if( arrayLast < 1 )
   throw "arrayLast < 1 in getNextChunk.";
@@ -149,13 +149,18 @@ Int32 length = chunkArray[where].getDataLength();
 const Int32 nextStart = begin + length + 2;
 const Int32 inBufLast = inBuf.getLast();
 
-// StIO::printF( "nextStart: " );
-// StIO::printFD( nextStart );
-// StIO::putLF();
+// A web page chunk that is a million
+// bytes long?
+if( nextStart > 1000000 )
+  throw "HttpChunkLine nextStart > 1000000";
 
-// StIO::printF( "inBufLast: " );
-// StIO::printFD( inBufLast );
-// StIO::putLF();
+StIO::printF( "nextStart: " );
+StIO::printFD( nextStart );
+StIO::putLF();
+
+StIO::printF( "inBufLast: " );
+StIO::printFD( inBufLast );
+StIO::putLF();
 
 if( (nextStart + 3) >= inBufLast )
   {

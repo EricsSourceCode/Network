@@ -55,7 +55,10 @@ class Http
     {
     }
 
-  bool getWebPage( const CharBuf& fileName );
+  bool getWebPage( const CharBuf& domain,
+                   const CharBuf& serverName,
+                   const CharBuf& fileName );
+
   bool getAllChunks( const CharBuf& fileName );
 
   };

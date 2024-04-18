@@ -47,10 +47,13 @@ bool gotExtension = false;
 CharBuf hexBuf;
 
 // The hex number can be any length, so make it
-// no longer than 6 hex chars.
+// no longer than 8 hex chars.
 // 6 digits at base 16.
 
-for( Int32 count = where; count < (where + 6);
+// It can look like C000 or it can look
+// like 0000C000 with those leading zeros.
+
+for( Int32 count = where; count < (where + 8);
                                        count++ )
   {
   if( count >= inBufLast )
@@ -91,4 +94,3 @@ dataLength = ByteHex::charBufToInt32( hexBuf );
 
 return true;
 }
-

@@ -14,7 +14,6 @@
 #include "Alerts.h"
 #include "Results.h"
 #include "Certificate.h"
-#include "ExtenList.h"
 #include "../CppBase/StIO.h"
 
 
@@ -130,7 +129,6 @@ for( Int32 certCount = 0; certCount < 100;
     return Results::Done;
     }
 
-
   // The extensions that come after a
   // certificate.
   // Two bytes for the length.
@@ -147,10 +145,27 @@ for( Int32 certCount = 0; certCount < 100;
   if( extenLength != 0 )
     throw "CertMesg extenLength != 0";
 
+  // RFC 8446 Section 4.2 for regular
+  // extensions is in ExtenList.cpp.
+
+  // extensions:  A set of extension values
+  // for the CertificateEntry.  The
+  // "Extension" format is defined in
+  // Section 4.2.  Valid extensions
+  // for server certificates at present
+  // include the OCSP Status
+  // extension
+  // Transport Layer Security (TLS) Extensions:
+  // Extension Definitions RFC6066] and the
+  // SignedCertificateTimestamp
+  // extension
+  // [Certificate Transparency RFC 6962];
+  // future extensions may be
+  // defined for this message as well.
   }
 
-StIO::putS( "\nEnd of CertMessage.\n\n" );
+StIO::putS(
+   "\nCertMesg: It should never get here.\n" );
 
 return Results::Done;
 }
-

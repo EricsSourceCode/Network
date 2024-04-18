@@ -27,10 +27,12 @@
 
 
 
-bool Http::getWebPage( const CharBuf& fileName )
+bool Http::getWebPage( const CharBuf& domain,
+                       const CharBuf& serverName,
+                       const CharBuf& fileName )
 {
 StIO::putS( "Getting web page." );
-fileName.showAscii();
+serverName.showAscii();
 StIO::putS( "\n\n" );
 
 // httpChunkLine.clear();
@@ -42,8 +44,6 @@ StIO::putS( "\n\n" );
 //                             "127.0.0.1",
 //                             "443" ))
 
-CharBuf domain;
-domain.appendCharPt( "durangoherald.com" );
 
 if( !clientTls.startHandshake(
                         domain,
@@ -71,11 +71,11 @@ if( !clientTls.startHandshake(
 CharBuf appDataToSend;
 
 const char* getRequest = "GET / HTTP/1.1\r\n"
-                         "Host: www.";
+                         "Host: ";
 
 appDataToSend.appendCharPt( getRequest );
 
-appDataToSend.appendCharBuf( domain );
+appDataToSend.appendCharBuf( serverName );
 
 const char* getRequest2 = "\r\n"
                "User-Agent: AINews\r\n"
@@ -133,12 +133,13 @@ for( Int32 count = 0; count < 10000; count++ )
       // chunked:
       // Transfer-Encoding: chunked.
 
-      // StIO::putS( "\n\nGot full header." );
+      StIO::putS( "\n\nGot full header." );
 
       header.copy( getHttpBuf );
 
-      // header.showAscii();
-      // StIO::putS( "\n\n" );
+      StIO::putS( "Header:" );
+      header.showAscii();
+      StIO::putS( "\n\n" );
 
       // parseHeader()
       }
@@ -165,7 +166,7 @@ bool Http::getAllChunks( const CharBuf& fileName )
 {
 StIO::putS( "Getting all chunks." );
 
-for( Int32 count = 0; count < 10000; count++ )
+for( Int32 count = 0; count < 100000; count++ )
   {
   if( Signals::getControlCSignal())
     {
@@ -185,7 +186,7 @@ for( Int32 count = 0; count < 10000; count++ )
     return false;
     }
 
-  httpInBuf.appendToCharBuf( getHttpBuf, 10000 );
+  httpInBuf.appendToCharBuf( getHttpBuf, 100000 );
 
   if( !httpChunkLine.getNextChunk( getHttpBuf ))
     return false;
