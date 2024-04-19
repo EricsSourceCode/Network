@@ -46,14 +46,14 @@ beginHexTag = where;
 bool gotExtension = false;
 CharBuf hexBuf;
 
-// The hex number can be any length, so make it
-// no longer than 8 hex chars.
-// 6 digits at base 16.
+// The hex number can be any length, and
+// it can have leading zeros.
 
 // It can look like C000 or it can look
 // like 0000C000 with those leading zeros.
 
-for( Int32 count = where; count < (where + 8);
+// This count goes way past the end of it.
+for( Int32 count = where; count < (where + 100);
                                        count++ )
   {
   if( count >= inBufLast )
@@ -75,6 +75,7 @@ for( Int32 count = where; count < (where + 8);
       // by a semicolon.
 
       gotExtension = true;
+      // Add extensions to this code.
       throw "Chunk has extensions.";
       // continue;
       }
@@ -86,11 +87,11 @@ for( Int32 count = where; count < (where + 8);
 // The hex size for dataLength doesn't
 // include the CR LF at the end of the chunk.
 
-dataLength = ByteHex::charBufToInt32( hexBuf );
+// This can't read a chunk size bigger
+// than 0x3FFFFFF.
+// Which is something like a billion bytes.
 
-// StIO::printF( "dataLength: " );
-// StIO::printFD( dataLength );
-// StIO::putLF();
+dataLength = ByteHex::charBufToInt32( hexBuf );
 
 return true;
 }

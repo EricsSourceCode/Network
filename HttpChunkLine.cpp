@@ -94,23 +94,23 @@ if( !chunkArray[0].getChunk( inBuf, where ))
   return false;
   }
 
-StIO::putS( "After got first chunk." );
-Int32 begin = chunkArray[0].getBeginData();
-
-StIO::printF( "begin first: " );
-StIO::printFD( begin );
-StIO::putLF();
+// StIO::putS( "After got first chunk." );
+// Int32 begin = chunkArray[0].getBeginData();
+// StIO::printF( "begin first: " );
+// StIO::printFD( begin );
+// StIO::putLF();
 
 arrayLast = 1;
 return true;
 }
 
 
+
+
 bool HttpChunkLine::getNextChunk(
                         const CharBuf& inBuf )
 {
-StIO::putS(
-        "\nTop of getNextChunk." );
+// StIO::putS( "\nTop of getNextChunk." );
 
 if( arrayLast < 1 )
   throw "arrayLast < 1 in getNextChunk.";
@@ -122,50 +122,29 @@ if( hasAllChunks())
 if( (arrayLast + 2) >= arraySize )
   resizeArrays( 1024 * 2 );
 
-// StIO::printF( "arrayLast: " );
-// StIO::printFD( arrayLast );
-// StIO::putLF();
-
-// StIO::printF( "arraySize: " );
-// StIO::printFD( arraySize );
-// StIO::putLF();
-
 const Int32 where = arrayLast - 1;
 
 Int32 begin = chunkArray[where].getBeginData();
 Int32 length = chunkArray[where].getDataLength();
 
-// StIO::printF( "begin: " );
-// StIO::printFD( begin );
-// StIO::putLF();
-
-// StIO::printF( "length: " );
-// StIO::printFD( length );
-// StIO::putLF();
-
 // The hex size for dataLength doesn't
 // include the CR LF at the end of the chunk.
 
 const Int32 nextStart = begin + length + 2;
+
+// Getting a billion byte file with this?
+if( nextStart > 1000000000 )
+  throw "HttpChunkLine nextStart too big.";
+
 const Int32 inBufLast = inBuf.getLast();
 
-// A web page chunk that is a million
-// bytes long?
-if( nextStart > 1000000 )
-  throw "HttpChunkLine nextStart > 1000000";
-
-StIO::printF( "nextStart: " );
-StIO::printFD( nextStart );
-StIO::putLF();
-
-StIO::printF( "inBufLast: " );
-StIO::printFD( inBufLast );
-StIO::putLF();
+// Chunks can be much longer that the Outer
+// Record length, which is usually
+// 16K, or 0x4000.
 
 if( (nextStart + 3) >= inBufLast )
   {
-  // StIO::putS(
-     // "Not enough data for next chunk." );
+  // Not enough data for the next chunk.
   return true;
   }
 
