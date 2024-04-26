@@ -24,10 +24,6 @@ Uint32 CertMesg::parseCertMsg(
 {
 StIO::putS( "Parsing Certificate Message." );
 
-// StIO::putLF();
-// certBuf.showHex();
-// StIO::putLF();
-
 // The certificate message is in RFC 8446
 // section-4.4.2.
 
@@ -37,9 +33,6 @@ StIO::putS( "Parsing Certificate Message." );
 
 
 const Int32 last = certBuf.getLast();
-StIO::printF( "certBuf last: " );
-StIO::printFD( last );
-StIO::putLF();
 
 if( last < 4 )
   {
@@ -62,27 +55,31 @@ if( certType != 0 )
 // this message.
 // Uint8 certRequestContext = certBuf.getU8( 1 );
 
-Uint32 certListLength = certBuf.getU8( 1 );
+Int32 certListLength = certBuf.getU8( 1 );
 certListLength <<= 8;
 certListLength |= certBuf.getU8( 2 );
 certListLength <<= 8;
 certListLength |= certBuf.getU8( 3 );
 
-StIO::printF( "certListLength: " );
-StIO::printFUD( certListLength );
-StIO::putLF();
+// StIO::printF( "certListLength: " );
+// StIO::printFUD( certListLength );
+// StIO::putLF();
 
 Int32 index = 4;
 
 if( (index + 3) >= last )
   {
-  throw "Nothing left in certBuf.";
+  throw "Nothing in certBuf.";
   // return Results::  something;
   }
+
+// This loop is for the chain of certificates.
+// There can't be a hundred of them.
 
 for( Int32 certCount = 0; certCount < 100;
                             certCount++ )
   {
+  // One certificate's length.
   Uint32 certLength = certBuf.getU8( index );
   index++;
   certLength <<= 8;
@@ -94,10 +91,11 @@ for( Int32 certCount = 0; certCount < 100;
 
   // if( certLength == 0 )
   // Or if it is too big...
+  // Or something...
 
-  StIO::printF( "certLength: " );
-  StIO::printFUD( certLength );
-  StIO::putLF();
+  // StIO::printF( "certLength: " );
+  // StIO::printFUD( certLength );
+  // StIO::putLF();
 
   CharBuf oneCertBuf;
 
@@ -111,8 +109,6 @@ for( Int32 certCount = 0; certCount < 100;
 
   Certificate cert;
 
-  // if result is an alert...
-
   Uint32 result = cert.parseOneCert(
                             oneCertBuf,
                             tlsMain );
@@ -125,7 +121,8 @@ for( Int32 certCount = 0; certCount < 100;
 
   if( (index + 3) >= last )
     {
-    StIO::putS( "Nothing left in certBuf." );
+    StIO::putS( 
+          "Nothing left in certBuf.\n\n\n" );
     return Results::Done;
     }
 
@@ -137,20 +134,29 @@ for( Int32 certCount = 0; certCount < 100;
   extenLength <<= 8;
   extenLength |= certBuf.getU8( index );
   index++;
-  StIO::printF( "extenLength: " );
-  StIO::printFUD( extenLength );
-  StIO::putLF();
+
+  // StIO::printF( "extenLength: " );
+  // StIO::printFUD( extenLength );
+  // StIO::putLF();
 
   // Do something with these extensions.
   if( extenLength != 0 )
     throw "CertMesg extenLength != 0";
 
+  if( index >= certListLength )
+    {
+    StIO::putS( "index >= certListLength" );
+    break;
+    }
+
+
   // RFC 8446 Section 4.2 for regular
   // extensions is in ExtenList.cpp.
 
-  // extensions:  A set of extension values
+  // From the RFC:
+  // "extensions:  A set of extension values
   // for the CertificateEntry.  The
-  // "Extension" format is defined in
+  // Extension format is defined in
   // Section 4.2.  Valid extensions
   // for server certificates at present
   // include the OCSP Status
@@ -160,8 +166,6 @@ for( Int32 certCount = 0; certCount < 100;
   // SignedCertificateTimestamp
   // extension
   // [Certificate Transparency RFC 6962];
-  // future extensions may be
-  // defined for this message as well.
   }
 
 StIO::putS(

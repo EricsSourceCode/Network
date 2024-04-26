@@ -35,7 +35,7 @@ StIO::putS( "\n\n\nParsing One Certificate." );
 Uint8 sequenceCheck = certBuf.getU8( 0 );
 sequenceCheck = sequenceCheck & 0x1F;
 if( sequenceCheck != DerEncode::SequenceTag )
-  throw "parseCertChain sequenceCheck bad.";
+  throw "parseOneCert() sequenceCheck bad.";
 
 // For testing:
 // DerEncodeLoop derEncodeLoop;
@@ -46,112 +46,99 @@ if( sequenceCheck != DerEncode::SequenceTag )
 // Test vector certificate is in RFC 8448:
 // Example Handshake Traces for TLS 1.3
 
-
-// There is one outer sequence tag that
-// contains everything.
-// Length is 428 for test vectors in RFC 8448.
-
 bool constructed = false;
 DerEncode derEncode;
 CharBuf statusBuf2;
 
 CharBuf wholeCertBuf;
 
-Int32 nextCert = 0;
-// Read each certificate.
-for( Int32 count = 0; count < 100; count++ )
+// There is one outer sequence tag that
+// contains everything.
+
+Int32 status = derEncode.readOneTag(
+                              certBuf, 0,
+                              constructed,
+                              statusBuf2, 0 );
+
+if( status < 0 )
   {
-  // Get the whole certificate Sequence.
-  wholeCertBuf.clear();
+  throw "There is no certificate.";
+  // StIO::putS( " error ..." );
+  // return Alerts::BadCertificate;
+  }
 
-  StIO::putS( "nextCert" );
-  nextCert = derEncode.readOneTag(
-                        certBuf, nextCert,
-                        constructed,
-                        statusBuf2, 0 );
+derEncode.getValue( wholeCertBuf );
 
-  if( nextCert < 0 )
-    break;
+// Get the three main Sequences in to
+// these three buffers.
 
-  StIO::putS( "nextCert has data." );
+// tbsCertificate    To Be Signed.
+CharBuf tbsCertBuf;
 
-  derEncode.getValue( wholeCertBuf );
+// signatureAlgorithm
+CharBuf sigAlgBuf;
 
+// signatureValue
+CharBuf sigValBuf;
 
-  // Get the three main Sequences in to
-  // these three buffers.
+Int32 next = 0;
 
-  // tbsCertificate    To Be Signed.
-  CharBuf tbsCertBuf;
-
-  // signatureAlgorithm
-  CharBuf sigAlgBuf;
-
-  // signatureValue
-  CharBuf sigValBuf;
-
-
-  Int32 next = 0;
-
-  // tbsCertificate
-  next = derEncode.readOneTag( wholeCertBuf, next,
+// tbsCertificate
+next = derEncode.readOneTag( wholeCertBuf, next,
                              constructed,
                              statusBuf2, 0 );
-  if( next < 0 )
-    {
-    StIO::putS( "Certificate.cpp error 1." );
-    return Alerts::BadCertificate;
-    }
-
-  derEncode.getValue( tbsCertBuf );
-
-
-
-  // signatureAlgorithm
-  next = derEncode.readOneTag( wholeCertBuf,
-                               next,
-                               constructed,
-                               statusBuf2, 0 );
-
-  if( next < 0 )
-    {
-    StIO::putS( "Certificate.cpp error 2." );
-    return Alerts::BadCertificate;
-    }
-
-  derEncode.getValue( sigAlgBuf );
-
-  // signatureValue
-  next = derEncode.readOneTag( wholeCertBuf,
-                               next,
-                               constructed,
-                               statusBuf2, 0 );
-  if( next < 0 )
-    {
-    StIO::putS( "Certificate.cpp error 3." );
-    return Alerts::BadCertificate;
-    }
-
-  derEncode.getValue( sigValBuf );
-
-  Uint32 errorCode = parseTbsCert( tbsCertBuf,
-                                 tlsMain );
-  if( errorCode != Results::Done )
-    return errorCode;
-
-
-  // signatureAlgorithm
-  // sigAlgBuf
-  errorCode = parseAlgID( sigAlgBuf // , tlsMain
-                        );
-  if( errorCode != Results::Done )
-    return errorCode;
-
-
-  // signatureValue
-  // sigValBuf
-  // Just one BitStringTag.
+if( next < 0 )
+  {
+  StIO::putS( "Certificate.cpp error 1." );
+  return Alerts::BadCertificate;
   }
+
+derEncode.getValue( tbsCertBuf );
+
+// signatureAlgorithm
+next = derEncode.readOneTag( wholeCertBuf,
+                             next,
+                             constructed,
+                             statusBuf2, 0 );
+
+if( next < 0 )
+  {
+  StIO::putS( "Certificate.cpp error 2." );
+  return Alerts::BadCertificate;
+  }
+
+derEncode.getValue( sigAlgBuf );
+
+// signatureValue
+next = derEncode.readOneTag( wholeCertBuf,
+                             next,
+                             constructed,
+                             statusBuf2, 0 );
+if( next < 0 )
+  {
+  StIO::putS( "Certificate.cpp error 3." );
+  return Alerts::BadCertificate;
+  }
+
+derEncode.getValue( sigValBuf );
+
+Uint32 errorCode = parseTbsCert( tbsCertBuf,
+                                 tlsMain );
+if( errorCode != Results::Done )
+  return errorCode;
+
+
+// signatureAlgorithm
+// sigAlgBuf
+errorCode = parseAlgID( sigAlgBuf // , tlsMain
+                        );
+if( errorCode != Results::Done )
+  return errorCode;
+
+
+// signatureValue
+// sigValBuf
+// Just one BitStringTag.
 
 // FileIO::writeAll( statusFileName, statusBuf );
 
@@ -166,10 +153,10 @@ Uint32 Certificate::parseTbsCert(
                     TlsMain& tlsMain )
 {
 StIO::putS( "parseTbsCert() top." );
-Int32 certLast = certBuf.getLast();
-StIO::printF( "TBS certLast: " );
-StIO::printFD( certLast );
-StIO::putLF();
+// Int32 certLast = certBuf.getLast();
+// StIO::printF( "TBS certLast: " );
+// StIO::printFD( certLast );
+// StIO::putLF();
 
 Int32 next = parseVersion( certBuf );
 if( next < 1 )
@@ -375,18 +362,14 @@ StIO::putLF();
 // What I send in the handshake tells it
 // what kind of certificates I can accept.
 
-
-// Mineralab.com has the old RSA signature.
 // 1.2.840.113549.1.1.1
 // Defined in RFC 2313, 2437.
 // See also RFC 3370.
-
 
 // The test vectors have this for RSA:
 // 1.2.840.113549.1.1.11
 // PKCS 1:
 // SHA256 with RSA encryption
-
 
 // DurangoHerald.com goes through the
 // security service at imperva.com for this:
@@ -396,9 +379,6 @@ StIO::putLF();
 // (DSA) coupled with the Secure Hash
 // Algorithm 384 (SHA384) algorithm
 // See RFC 5480 and RFC 5758.
-// https://en.wikipedia.org/wiki/
-//             Digital_Signature_Algorithm
-
 
 // Parameters for the algID.
 
@@ -945,7 +925,7 @@ if( nextIn < 0 )
   }
 
 
-StIO::putS( "parseExtensions top." );
+StIO::putS( "\n\n\nparseExtensions top." );
 
 // Where is this wrapper in any RFC or
 // specification?

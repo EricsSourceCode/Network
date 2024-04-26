@@ -16,7 +16,7 @@
 #include "../CppBase/CharBuf.h"
 #include "../CppInt/IntegerMath.h"
 #include "DerEncode.h"
-#include "DerEncodeLoop.h"
+// #include "DerEncodeLoop.h"
 #include "Alerts.h"
 #include "Results.h"
 #include "../CppBase/FileIO.h"
@@ -38,7 +38,7 @@ class Certificate
   bool testForCopy = false;
   CharBuf statusBuf;
   // const char* statusFileName =
-  //  "\\Eric\\main\\TlsClient\\CertStatus.txt";
+  //  "\\Eric\\main\\AIData\\CertStatus.txt";
 
   Integer serialNum;
   Integer pubKeyNum;

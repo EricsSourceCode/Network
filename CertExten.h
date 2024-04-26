@@ -1,4 +1,4 @@
-// Copyright Eric Chauvin 2023.
+// Copyright Eric Chauvin 2023 - 2024.
 
 
 
@@ -8,7 +8,7 @@
 // https://www.gnu.org/licenses/gpl-3.0.html
 
 
-// See https://ericinarizona.github.io/
+// See https://ericssourcecode.github.io/
 // For guides and information.
 
 
@@ -19,7 +19,7 @@
 #include "../CppBase/CharBuf.h"
 #include "../CppInt/IntegerMath.h"
 #include "DerEncode.h"
-#include "DerEncodeLoop.h"
+// #include "DerEncodeLoop.h"
 #include "Alerts.h"
 #include "Results.h"
 #include "../CppBase/FileIO.h"
