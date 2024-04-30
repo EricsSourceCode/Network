@@ -37,24 +37,34 @@ StIO::putS( "\n\n" );
 
 // httpChunkLine.clear();
 
-// if( !clientTls.startHandshake( "127.0.0.1",
-//                               "443" ))
-
-// if( !clientTls.startTestVecHandshake(
-//                             "127.0.0.1",
-//                             "443" ))
-
-
-if( !clientTls.startHandshake(
-                        domain,
-                        "443" ))
+if( serverName.contains( "loopback" ))
   {
-  StIO::putS(
+  if( !clientTls.startTestVecHandshake(
+                        "127.0.0.1", "443" ))
+/*
+  if( !clientTls.startHandshake( "127.0.0.1",
+                                     "443" ))
+*/
+    {
+    StIO::putS(
         "ClientTls false on startHandshake." );
 
-  return false;
+    return false;
+    }
+*/
   }
+else
+  {
+  if( !clientTls.startHandshake(
+                               domain,
+                               "443" ))
+    {
+    StIO::putS(
+        "ClientTls false on startHandshake." );
 
+    return false;
+    }
+  }
 
 // TE is what Transfer Encodings you will
 // accept.

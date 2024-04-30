@@ -153,4 +153,3 @@ for( Int32 count = 0; count < msgLength; count++ )
 // How many bytes of inBuf it sent.
 return msgLength + 5;
 }
-

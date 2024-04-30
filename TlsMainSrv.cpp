@@ -614,7 +614,7 @@ if( messageType == TlsOuterRec::ApplicationData )
      "App data messageType is ApplicationData." );
 
   messages.showAscii();
- 
+
   return 1;
   }
 
