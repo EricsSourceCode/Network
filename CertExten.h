@@ -19,7 +19,6 @@
 #include "../CppBase/CharBuf.h"
 #include "../CppInt/IntegerMath.h"
 #include "DerEncode.h"
-// #include "DerEncodeLoop.h"
 #include "Alerts.h"
 #include "Results.h"
 #include "../CppBase/FileIO.h"
@@ -84,6 +83,7 @@ class CertExten
   CharBuf certPolicyObjID;
   CharBuf authKeyIDObjID;
   CharBuf extenKeyUsageObjID;
+  bool isACertAuthority = false;
 
   public:
   CertExten( void )
@@ -137,7 +137,7 @@ class CertExten
                 CharBuf& statusBuf );
 
   bool parseBasicConstraints(
-                    // const CharBuf& extenData,
+                    const CharBuf& extenData,
                     const bool critical );
 
   bool parseKeyUsage(

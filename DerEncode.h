@@ -2,11 +2,6 @@
 
 
 
-
-// https://github.com/EricInArizona
-
-
-
 // This is licensed under the GNU General
 // Public License (GPL).  It is the
 // same license that Linux has.

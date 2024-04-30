@@ -51,7 +51,6 @@ if( serverName.contains( "loopback" ))
 
     return false;
     }
-*/
   }
 else
   {

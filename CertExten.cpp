@@ -16,6 +16,7 @@
 #include "../CppBase/StIO.h"
 #include "DerEncode.h"
 #include "DerObjID.h"
+#include "DerEncodeLoop.h"
 
 
 
@@ -93,7 +94,7 @@ bool CertExten::parseOneExten( const CharBuf&
                             oneExtenSeqVal,
                             CharBuf& statusBuf )
 {
-StIO::putS( "parseOneExten top." );
+StIO::putS( "\nparseOneExten top." );
 
 Int32 lastSeqVal = oneExtenSeqVal.getLast();
 StIO::printF( "lastSeqVal: " );
@@ -178,16 +179,57 @@ if( derEncode.getTag() !=
 CharBuf octetString;
 derEncode.getValue( octetString );
 
+
 if( objIDOut.isEqual( basicConstraintObjID ))
+  {
   return parseBasicConstraints(
-                    // octetString,
+                    octetString,
                     critical );
+  }
 
 if( objIDOut.isEqual( keyUsageObjID ))
+  {
   return parseKeyUsage(
                     // const CharBuf& extenData,
                     critical );
+  }
 
+
+if( objIDOut.isEqual( subjectKeyIDObjID ))
+  {
+  StIO::putS( "CertExten: subjectKeyIDObjID." );
+  return true;
+  }
+
+if( objIDOut.isEqual( subjectAltNameObjID ))
+  {
+  StIO::putS( "CertExten: subjectAltNameObjID." );
+  return true;
+  }
+
+if( objIDOut.isEqual( crlDistribPtsObjID ))
+  {
+  StIO::putS( "CertExten: crlDistribPtsObjID." );
+  return true;
+  }
+
+if( objIDOut.isEqual( certPolicyObjID ))
+  {
+  StIO::putS( "CertExten: certPolicyObjID." );
+  return true;
+  }
+
+if( objIDOut.isEqual( authKeyIDObjID ))
+  {
+  StIO::putS( "CertExten: authKeyIDObjID." );
+  return true;
+  }
+
+if( objIDOut.isEqual( extenKeyUsageObjID ))
+  {
+  StIO::putS( "CertExten: extenKeyUsageObjID." );
+  return true;
+  }
 
 
 StIO::putS( "CertExten: No matching extension." );
@@ -199,9 +241,19 @@ return true;
 
 
 bool CertExten::parseBasicConstraints(
-                    // const CharBuf& extenData,
+                    const CharBuf& extenData,
                     const bool critical )
 {
+StIO::putS( "Parsing Basic constraints." );
+
+const Int32 last = extenData.getLast();
+if( last < 1 )
+  {
+  StIO::putS( "Basic constraints: no data." );
+  // return false ?
+  return true;
+  }
+
 // RFC 5280 section 4.2.1.9.
 //  Basic Constraints
 // Object ID: 2.5.29.19
@@ -217,8 +269,92 @@ bool CertExten::parseBasicConstraints(
 
 if( critical )
   {
-  StIO::putS( "Basic constraints critical." );
+  StIO::putS( "Basic constraints is critical." );
   }
+
+DerEncode derEncode;
+bool constructed = false;
+CharBuf statusBuf;
+// extenData is a: DerEncode::OctetStringTag
+
+derEncode.readOneTag( extenData,
+                      0, constructed,
+                      statusBuf, 0 );
+
+if( derEncode.getTag() !=
+                   DerEncode::SequenceTag )
+  throw "Basic Constraints not a Sequence tag.";
+
+CharBuf seqData;
+derEncode.getValue( seqData );
+const Int32 lastSeq = seqData.getLast();
+if( lastSeq < 1 )
+  throw "lastSeq < 1";
+======== No data?
+Maybe it's normal to have no data?
+Or what?
+
+StIO::putS( "There is some seqData." );
+
+
+Int32 next = 0;
+Uint8 boolCheck = seqData.getU8( next );
+if( boolCheck == DerEncode::BooleanTag )
+  {
+  // If it's there at all it is true.
+  StIO::putS( "Basic constraints: is a CA." );
+
+  next = derEncode.readOneTag(
+                      seqData,
+                      next, constructed,
+                      statusBuf, 0 );
+
+  CharBuf boolVal;
+  derEncode.getValue( boolVal );
+  Int32 boolLen = boolVal.getLast();
+  StIO::printF( "Cert Auth bool length: " );
+  StIO::printFD( boolLen );
+  StIO::putLF();
+  Uint8 testBool = boolVal.getU8( 0 );
+  if( testBool != 0 )
+    {
+    isACertAuthority = true;
+    StIO::putS( "Basic constraints: is a CA." );
+    }
+  else
+    {
+    StIO::putS( 
+           "Basic constraints: is not a CA." );
+
+    }
+  }
+else
+  {
+  // It doesn't have the bool tag.
+  StIO::putS( 
+   "No bool tag. Basic constraints: not a CA." );
+  }
+
+next = derEncode.readOneTag(
+                      seqData,
+                      next, constructed,
+                      statusBuf, 0 );
+
+if( derEncode.getTag() !=
+                   DerEncode::IntegerTag )
+  throw "Basic Constraints not an Integer tag.";
+
+
+
+
+
+/*
+====
+CharBuf serNumVal;
+derEncode.getValue( serNumVal );
+serialNum.setFromBigEndianCharBuf( serNumVal );
+*/
+
 
 return true;
 }
