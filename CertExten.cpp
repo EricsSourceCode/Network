@@ -17,7 +17,7 @@
 #include "DerEncode.h"
 #include "DerObjID.h"
 #include "DerEncodeLoop.h"
-
+#include "DerBitStr.h"
 
 
 // RFC 5280 Section 4.1.2.9.  Extensions
@@ -90,7 +90,7 @@ So Boolean false is not there in an extension.
 
 
 
-bool CertExten::parseOneExten( const CharBuf&
+void CertExten::parseOneExten( const CharBuf&
                             oneExtenSeqVal,
                             CharBuf& statusBuf )
 {
@@ -178,80 +178,85 @@ if( derEncode.getTag() !=
 
 CharBuf octetString;
 derEncode.getValue( octetString );
+// StIO::printF( "OctetString: " );
+// octetString.showHex();
+// StIO::printF( "<There\n" );
 
 
 if( objIDOut.isEqual( basicConstraintObjID ))
   {
-  return parseBasicConstraints(
-                    octetString,
-                    critical );
+  parseBasicConstraints( octetString,
+                         critical );
+  return;
   }
 
 if( objIDOut.isEqual( keyUsageObjID ))
   {
-  return parseKeyUsage(
-                    // const CharBuf& extenData,
-                    critical );
+  parseKeyUsage( octetString,
+                 critical );
+  return;
   }
 
 
 if( objIDOut.isEqual( subjectKeyIDObjID ))
   {
   StIO::putS( "CertExten: subjectKeyIDObjID." );
-  return true;
+  return;
   }
 
 if( objIDOut.isEqual( subjectAltNameObjID ))
   {
   StIO::putS( "CertExten: subjectAltNameObjID." );
-  return true;
+  return;
   }
 
 if( objIDOut.isEqual( crlDistribPtsObjID ))
   {
   StIO::putS( "CertExten: crlDistribPtsObjID." );
-  return true;
+  return;
   }
 
 if( objIDOut.isEqual( certPolicyObjID ))
   {
   StIO::putS( "CertExten: certPolicyObjID." );
-  return true;
+  return;
   }
 
 if( objIDOut.isEqual( authKeyIDObjID ))
   {
   StIO::putS( "CertExten: authKeyIDObjID." );
-  return true;
+  return;
   }
 
 if( objIDOut.isEqual( extenKeyUsageObjID ))
   {
   StIO::putS( "CertExten: extenKeyUsageObjID." );
-  return true;
+  return;
   }
 
-
-StIO::putS( "CertExten: No matching extension." );
-return true;
+throw "CertExten: No matching extension.";
 }
 
 
 
 
 
-bool CertExten::parseBasicConstraints(
-                    const CharBuf& extenData,
+void CertExten::parseBasicConstraints(
+                    const CharBuf& octetString,
                     const bool critical )
 {
+// RFC 5280 Section 4.2.1.9.
+// Basic Constraints
+
+isACertAuthority = false;
+
 StIO::putS( "Parsing Basic constraints." );
 
-const Int32 last = extenData.getLast();
+const Int32 last = octetString.getLast();
 if( last < 1 )
   {
   StIO::putS( "Basic constraints: no data." );
-  // return false ?
-  return true;
+  return;
   }
 
 // RFC 5280 section 4.2.1.9.
@@ -275,9 +280,8 @@ if( critical )
 DerEncode derEncode;
 bool constructed = false;
 CharBuf statusBuf;
-// extenData is a: DerEncode::OctetStringTag
 
-derEncode.readOneTag( extenData,
+derEncode.readOneTag( octetString,
                       0, constructed,
                       statusBuf, 0 );
 
@@ -285,24 +289,26 @@ if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
   throw "Basic Constraints not a Sequence tag.";
 
+Uint32 seqLength = derEncode.getLength();
+if( seqLength < 1 )
+  {
+  StIO::putS( "Basic constraints length 0." );
+  // There is no path length for no CA.
+  return;
+  }
+
 CharBuf seqData;
 derEncode.getValue( seqData );
-const Int32 lastSeq = seqData.getLast();
-if( lastSeq < 1 )
-  throw "lastSeq < 1";
-======== No data?
-Maybe it's normal to have no data?
-Or what?
-
-StIO::putS( "There is some seqData." );
-
+if( seqData.getLast() < 1 )
+  return;
 
 Int32 next = 0;
 Uint8 boolCheck = seqData.getU8( next );
 if( boolCheck == DerEncode::BooleanTag )
   {
   // If it's there at all it is true.
-  StIO::putS( "Basic constraints: is a CA." );
+  // If it follows the specs.
+  // isACertAuthority = true;
 
   next = derEncode.readOneTag(
                       seqData,
@@ -311,28 +317,33 @@ if( boolCheck == DerEncode::BooleanTag )
 
   CharBuf boolVal;
   derEncode.getValue( boolVal );
-  Int32 boolLen = boolVal.getLast();
-  StIO::printF( "Cert Auth bool length: " );
-  StIO::printFD( boolLen );
-  StIO::putLF();
+  if( boolVal.getLast() < 1 )
+    return;
+
   Uint8 testBool = boolVal.getU8( 0 );
   if( testBool != 0 )
     {
+    // See below.
     isACertAuthority = true;
     StIO::putS( "Basic constraints: is a CA." );
     }
   else
     {
-    StIO::putS( 
+    StIO::putS(
            "Basic constraints: is not a CA." );
 
+    // There is no path length for no CA.
+    return;
     }
   }
 else
   {
   // It doesn't have the bool tag.
-  StIO::putS( 
+  StIO::putS(
    "No bool tag. Basic constraints: not a CA." );
+
+  // There is no path length for no CA.
+  return;
   }
 
 next = derEncode.readOneTag(
@@ -344,25 +355,28 @@ if( derEncode.getTag() !=
                    DerEncode::IntegerTag )
   throw "Basic Constraints not an Integer tag.";
 
+Integer pathLength;
 
+CharBuf numVal;
+derEncode.getValue( numVal );
+pathLength.setFromBigEndianCharBuf( numVal );
 
+// This would be an Int32 because the path
+// (number of certificates) can't be that long.
 
+if( !pathLength.isLong48())
+  throw "pathLength is not a long.";
 
-/*
-====
-CharBuf serNumVal;
-derEncode.getValue( serNumVal );
-serialNum.setFromBigEndianCharBuf( serNumVal );
-*/
-
-
-return true;
+Int64 pathLen = pathLength.getAsLong48();
+StIO::printF( "Path length: " );
+StIO::printFD( pathLen );
+StIO::putLF();
 }
 
 
 
-bool CertExten::parseKeyUsage(
-                    // const CharBuf& extenData,
+void CertExten::parseKeyUsage(
+                    const CharBuf& octetString,
                     const bool critical )
 {
 // RFC 5280 section 4.2.1.3.
@@ -370,21 +384,28 @@ bool CertExten::parseKeyUsage(
 
 // Object ID: 2.5.29.15
 
-// The key usage extension defines the
-// purpose (e.g., encipherment,
-// signature, certificate signing) of
-// the key contained in the
-// certificate.
+StIO::putS( "Top of Basic key usage." );
 
-// "Conforming CAs MUST include this
-// extension in certificates that
-//   contain public keys that are used
-// to validate digital signatures on
-//   other public key certificates or
-// CRLs.
-//   SHOULD mark this extension as critical.
+if( critical )
+  {
+  StIO::putS( "Basic key usage is critical." );
+  }
 
-// KeyUsage ::= BIT STRING {
+if( octetString.getLast() < 1 )
+  {
+  StIO::putS( "OctetString length is zero." );
+  return;
+  }
+
+// 05 A0 means 5 unused bits on the right.
+// A is 10, which is 1010.  Shifting right
+// 5 bits is A0 >> 5 = 101.
+// And it is Big Endian, so the bit on the
+// right side is bit zero.
+ 
+// So digitalSignature is set and
+// keyEncipherment is set.
+
 // digitalSignature        (0),
 // nonRepudiation          (1),
 //          -- recent editions of X.509 have
@@ -398,11 +419,42 @@ bool CertExten::parseKeyUsage(
 // encipherOnly            (7),
 // decipherOnly            (8) }
 
+DerEncode derEncode;
+bool constructed = false;
+CharBuf statusBuf;
 
-if( critical )
+derEncode.readOneTag( octetString,
+                      0, constructed,
+                      statusBuf, 0 );
+
+if( derEncode.getTag() !=
+                   DerEncode::BitStringTag )
+  throw "Key Usage not a BitString tag.";
+
+Uint32 bitArLength = derEncode.getLength();
+if( bitArLength < 1 )
   {
-  StIO::putS( "Basic key usage critical." );
+  StIO::putS( "Key Usage length 0." );
+  return;
   }
 
-return true;
+CharBuf bitStrData;
+derEncode.getValue( bitStrData );
+if( bitStrData.getLast() < 2 )
+  throw "bitStrData length < 2";
+
+StIO::putS( "bitStrData:" );
+bitStrData.showHex();
+StIO::putLF();
+
+DerBitStr derBitStr;
+derBitStr.setCharBuf( bitStrData );
+
+if( derBitStr.getBitAt( 0 ))
+  StIO::putS( "digitalSignature bit is set." );
+
+if( derBitStr.getBitAt( 2 ))
+  StIO::putS( "keyEncipherment bit is set." );
+
 }
+

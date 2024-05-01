@@ -132,16 +132,16 @@ class CertExten
     {
     }
 
-  bool parseOneExten(
+  void parseOneExten(
                 const CharBuf& oneExtenSeqVal,
                 CharBuf& statusBuf );
 
-  bool parseBasicConstraints(
+  void parseBasicConstraints(
                     const CharBuf& extenData,
                     const bool critical );
 
-  bool parseKeyUsage(
-                 // const CharBuf& extenData,
+  void parseKeyUsage(
+                 const CharBuf& octetString,
                  const bool critical );
 
   };

@@ -102,7 +102,7 @@ class Certificate
   Int32 parseUniqueID( const CharBuf& certBuf,
                        const Int32 nextIn );
 
-  Int32 parseExtensions(
+  void parseExtensions(
                     const CharBuf& certBuf,
                     const Int32 nextIn // ,
                     // TlsMain& tlsMain

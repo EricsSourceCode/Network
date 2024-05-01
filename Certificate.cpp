@@ -910,7 +910,7 @@ return next;
 
 
 
-Int32 Certificate::parseExtensions(
+void Certificate::parseExtensions(
                     const CharBuf& certBuf,
                     const Int32 nextIn // ,
                     // TlsMain& tlsMain
@@ -921,7 +921,7 @@ Int32 Certificate::parseExtensions(
 if( nextIn < 0 )
   {
   StIO::putS( "No extension data 1." );
-  return -1;
+  return;
   }
 
 
@@ -959,7 +959,7 @@ Int32 next = derEncode.readOneTag( certBuf,
 if( next < 0 )
   {
   StIO::putS( "No extension data 2." );
-  return -1;
+  return;
   }
 
 CharBuf extenWrapVal;
@@ -1000,28 +1000,23 @@ for( Int32 count = 0; count < 1000; count++ )
   if( nextExten < 0 )
     {
     StIO::putS( "No more extensions." );
-    return -1;
+    return;
     }
 
   if( derEncode.getTag() !=
                     DerEncode::SequenceTag )
     {
     StIO::putS( "Extension is not a Sequence." );
-    return -1;
+    return;
     }
 
   CharBuf oneExtenSeqVal;
   derEncode.getValue( oneExtenSeqVal );
-  if( !certExten.parseOneExten( oneExtenSeqVal,
-                                statusBuf ))
-    {
-    StIO::putS( "parseOneExten false." );
-    return -1;
-    }
+  certExten.parseOneExten( oneExtenSeqVal,
+                           statusBuf );
   }
 
 // Nothing comes after extensions.
-return -1;
 }
 
 
