@@ -197,7 +197,6 @@ if( objIDOut.isEqual( keyUsageObjID ))
   return;
   }
 
-
 if( objIDOut.isEqual( subjectKeyIDObjID ))
   {
   StIO::putS( "CertExten: subjectKeyIDObjID." );
@@ -206,7 +205,7 @@ if( objIDOut.isEqual( subjectKeyIDObjID ))
 
 if( objIDOut.isEqual( subjectAltNameObjID ))
   {
-  StIO::putS( "CertExten: subjectAltNameObjID." );
+  parseSubjectAltName( octetString, critical );
   return;
   }
 
@@ -234,7 +233,15 @@ if( objIDOut.isEqual( extenKeyUsageObjID ))
   return;
   }
 
-throw "CertExten: No matching extension.";
+if( objIDOut.isEqual( authorityInfoAccessObjID ))
+  {
+  StIO::putS(
+      "CertExten: authorityInfoAccessObjID." );
+  return;
+  }
+
+StIO::putS( "CertExten: No matching extension." );
+// throw "CertExten: No matching extension.";
 }
 
 
@@ -402,7 +409,7 @@ if( octetString.getLast() < 1 )
 // 5 bits is A0 >> 5 = 101.
 // And it is Big Endian, so the bit on the
 // right side is bit zero.
- 
+
 // So digitalSignature is set and
 // keyEncipherment is set.
 
@@ -458,3 +465,167 @@ if( derBitStr.getBitAt( 2 ))
 
 }
 
+
+
+void CertExten::parseSubjectAltName(
+                    const CharBuf& octetString,
+                    const bool critical )
+{
+// RFC 5280 Section 4.2.1.6.
+//  Subject Alternative Name
+
+StIO::putS( "\n\n\n=============" );
+
+StIO::putS( "Top of Subject Alt Name" );
+
+const Int32 last = octetString.getLast();
+if( last < 1 )
+  {
+  StIO::putS( "SubjectAltName: no data." );
+  return;
+  }
+
+if( critical )
+  {
+  StIO::putS( "SubjectAltName is critical." );
+  }
+
+// For testing:
+// CharBuf statusBuf2;
+// DerEncodeLoop derEncodeLoop;
+// derEncodeLoop.readAllTags( octetString, 0,
+//                             statusBuf2, 0 );
+// statusBuf2.showAscii();
+
+DerEncode derEncode;
+bool constructed = false;
+CharBuf statusBuf;
+
+// This is the one big outer sequence.
+derEncode.readOneTag( octetString,
+                      0, constructed,
+                      statusBuf, 0 );
+
+if( derEncode.getTag() !=
+                   DerEncode::SequenceTag )
+  throw "SubjectAltName not a Sequence tag.";
+
+Uint32 seqLength = derEncode.getLength();
+if( seqLength < 1 )
+  {
+  StIO::putS( "SubjectAltName seqLength 0." );
+  return;
+  }
+
+CharBuf seqData;
+derEncode.getValue( seqData );
+
+// This is something like 1,982 bytes.
+const Int32 seqDataLast = seqData.getLast();
+
+
+StIO::printF( "seqDataLast: " );
+StIO::printFD( seqDataLast );
+StIO::putLF();
+
+Int32 next = 0;
+
+// How many of these does it have?
+for( Int32 count = 0; count < 1000; count++ )
+  {
+  StIO::putLF();
+
+  next = derEncode.readOneTag( seqData,
+                      next, constructed,
+                      statusBuf, 0 );
+
+  if( next < 1 )
+    {
+    StIO::putS( "No more contextSpec tags." );
+    break;
+    }
+
+  Uint32 tagType = derEncode.getTag();
+  StIO::printF( "contextSpecTagType: " );
+  StIO::printFD( tagType );
+  StIO::putLF();
+
+  if( !derEncode.getIsContextSpec())
+    throw "CertExten tag should be contextSpec.";
+
+  Uint32 oneSeqLength = derEncode.getLength();
+  StIO::printF( "oneSeqLength: " );
+  StIO::printFUD( oneSeqLength );
+  StIO::putLF();
+
+  CharBuf insideVal;
+  derEncode.getValue( insideVal );
+
+/*
+  DerEncode derEncodeInside;
+
+  derEncodeInside.readOneTag( insideVal,
+                      0, constructed,
+                      statusBuf, 0 );
+
+  tagType = derEncodeInside.getTag();
+
+  // This is an Integer.  It tells which of
+  // the enumerated values it is.
+  StIO::printF( "Integer tagType: " );
+  StIO::printFD( tagType );
+  StIO::putLF();
+*/
+  }
+
+
+
+/*
+// EnumeratedTag = 10;
+0A 01 01
+0A is the Enumerated tag. 01 is the length?
+and 01 is the enumerated value.
+
+So get an enumerated value:
+        otherName                 [0]     OtherName,
+        rfc822Name                [1]     IA5String,
+        dNSName                   [2]     IA5String,
+        x400Address               [3]     ORAddress,
+        directoryName             [4]     Name,
+        ediPartyName              [5]     EDIPartyName,
+        uniformResourceIdentifier [6]     IA5String,
+        iPAddress                 [7]     OCTET STRING,
+        registeredID              [8]     OBJECT IDENTIFIER }
+
+
+
+   SubjectAltName ::= GeneralNames
+
+   GeneralNames ::=
+SEQUENCE SIZE (1..MAX) OF GeneralName
+
+   GeneralName ::= CHOICE {
+        otherName                 [0]     OtherName,
+        rfc822Name                [1]     IA5String,
+        dNSName                   [2]     IA5String,
+        x400Address               [3]     ORAddress,
+        directoryName             [4]     Name,
+        ediPartyName              [5]     EDIPartyName,
+        uniformResourceIdentifier [6]     IA5String,
+        iPAddress                 [7]     OCTET STRING,
+        registeredID              [8]     OBJECT IDENTIFIER }
+
+   OtherName ::= SEQUENCE {
+        type-id    OBJECT IDENTIFIER,
+        value      [0] EXPLICIT ANY DEFINED
+                    BY type-id }
+
+   EDIPartyName ::= SEQUENCE {
+        nameAssigner            [0]     DirectoryString OPTIONAL,
+        partyName               [1]     DirectoryString }
+
+*/
+
+
+StIO::putS( "=============\n\n\n" );
+}

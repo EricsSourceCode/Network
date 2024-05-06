@@ -47,7 +47,7 @@ class DerBitStr
     {
     cBuf.copy( toSet );
 
-    const Int32 cBufLast = cBuf.getLast(); 
+    const Int32 cBufLast = cBuf.getLast();
     if( cBufLast < 2 )
       throw "DerBitStr cBufLast < 2.";
 
@@ -71,7 +71,7 @@ class DerBitStr
       {
       moreBits = cBuf.getU8( 2 );
       moreBits <<= 8;
-      allBits |= moreBits; 
+      allBits |= moreBits;
       }
 
     // if( cBufLast > 3 )
@@ -89,4 +89,3 @@ class DerBitStr
     }
 
   };
-

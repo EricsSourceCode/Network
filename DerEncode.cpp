@@ -202,9 +202,9 @@ else
     }
   }
 
-// StIO::printF( "Length: " );
-// StIO::printFUD( length );
-// StIO::putLF();
+StIO::printF( "Length: " );
+StIO::printFUD( length );
+StIO::putLF();
 
 // Big endian.
 // u16Buf.appendU16( (length >> 16) & 0xFFFF );

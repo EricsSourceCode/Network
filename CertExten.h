@@ -51,7 +51,15 @@ RFC 5280 Section 4.2.
 4.2.1.15. Freshest CRL (a.k.a. Delta CRL
   Distribution Point)
 4.2.2. Private Internet Extensions
+
+
+           4.2.2. Private Internet Extensions ........................49
+                  4.2.2.1. Authority Information Access ..............49
+                  4.2.2.2. Subject Information Access ................51
+
+1.3.6.1.5.5.7.1.1
 4.2.2.1. Authority Information Access
+
 4.2.2.2. Subject Information Access
 
 
@@ -83,6 +91,9 @@ class CertExten
   CharBuf certPolicyObjID;
   CharBuf authKeyIDObjID;
   CharBuf extenKeyUsageObjID;
+  CharBuf authorityInfoAccessObjID;
+  CharBuf subjectInfoAccessObjID;
+
   bool isACertAuthority = false;
 
   public:
@@ -117,6 +128,11 @@ class CertExten
     extenKeyUsageObjID.setFromCharPoint(
                          "2.5.29.37" );
 
+    authorityInfoAccessObjID.setFromCharPoint(
+                    "1.3.6.1.5.5.7.1.1" );
+
+    // subjectInfoAccessObjID
+
 
     }
 
@@ -141,6 +157,10 @@ class CertExten
                     const bool critical );
 
   void parseKeyUsage(
+                 const CharBuf& octetString,
+                 const bool critical );
+
+  void parseSubjectAltName(
                  const CharBuf& octetString,
                  const bool critical );
 
