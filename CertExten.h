@@ -86,6 +86,7 @@ class CertExten
   CharBuf subjectKeyIDObjID;
   CharBuf keyUsageObjID;
   CharBuf subjectAltNameObjID;
+  CharBuf issuerAltNameObjID;
   CharBuf basicConstraintObjID;
   CharBuf crlDistribPtsObjID;
   CharBuf certPolicyObjID;
@@ -108,6 +109,10 @@ class CertExten
     // Subject Alternative Name
     subjectAltNameObjID.setFromCharPoint(
                          "2.5.29.17" );
+
+    // Issuer Alternative Name
+    issuerAltNameObjID.setFromCharPoint(
+                         "2.5.29.18" );
 
     basicConstraintObjID.setFromCharPoint(
                          "2.5.29.19" );
@@ -149,8 +154,7 @@ class CertExten
     }
 
   void parseOneExten(
-                const CharBuf& oneExtenSeqVal,
-                CharBuf& statusBuf );
+                const CharBuf& oneExtenSeqVal );
 
   void parseBasicConstraints(
                     const CharBuf& extenData,
@@ -161,6 +165,10 @@ class CertExten
                  const bool critical );
 
   void parseSubjectAltName(
+                 const CharBuf& octetString,
+                 const bool critical );
+
+  void parseIssuerAltName(
                  const CharBuf& octetString,
                  const bool critical );
 

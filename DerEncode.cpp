@@ -24,20 +24,14 @@ val.copy( value );
 Int32 DerEncode::readOneTag(
                     const CharBuf& cBuf,
                     const Int32 where,
-                    bool& constructed,
-                    CharBuf& statusBuf,
-                    // Uint16Buf& u16Buf,
-                    const Int32 level )
+                    bool& constructed )
 {
 tag = 0;
 length = 0;
 value.clear();
 
 if( where < 0 )
-  {
-  StIO::putS( "DerEncode where is < 0." );
-  return -1;
-  }
+  throw "DerEncode where is < 0.";
 
 const Int32 lastCBuf = cBuf.getLast();
 if( where >= lastCBuf )
@@ -48,14 +42,6 @@ if( where >= lastCBuf )
 
 // See CertTag.h for how these values are
 // read from the file.
-
-// u16Buf.appendU16( TagStartDelim );
-// u16Buf.appendU16( level & 0xFFFF );
-
-statusBuf.appendCharPt( "\nLevel: " );
-CharBuf showLevel( level );
-statusBuf.appendCharBuf( showLevel );
-statusBuf.appendCharPt( "\n" );
 
 Int32 index = where;
 Uint8 aByte = cBuf.getU8( index );
@@ -100,7 +86,7 @@ if( (tag >> 16) != 0 )
 
 // u16Buf.appendU16( tag & 0xFFFF );
 
-showTag( fullTagByte, tag, statusBuf );
+// showTag( fullTagByte, tag, statusBuf );
 
 if( (fullTagByte & ClassContextSpec ) != 0 )
   isContextSpec = true;
@@ -202,9 +188,9 @@ else
     }
   }
 
-StIO::printF( "Length: " );
-StIO::printFUD( length );
-StIO::putLF();
+// StIO::printF( "Length: " );
+// StIO::printFUD( length );
+// StIO::putLF();
 
 // Big endian.
 // u16Buf.appendU16( (length >> 16) & 0xFFFF );
@@ -213,10 +199,7 @@ StIO::putLF();
 for( Uint32 count = 0; count < length; count++ )
   {
   if( index >= lastCBuf )
-    {
-    StIO::putS( "DerEncode index >= lastCBuf." );
-    return -1;
-    }
+    throw "DerEncode index >= lastCBuf.";
 
   aByte = cBuf.getU8( index );
   value.appendU8( aByte );

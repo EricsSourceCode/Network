@@ -32,10 +32,7 @@ for( Int32 loops = 0; loops < reasonableCount;
                                    loops++ )
   {
   next = derEncode.readOneTag( cBuf, next,
-                            constructed,
-                            statusBuf,
-                            // u16Buf,
-                            level );
+                            constructed );
   if( next < 0 )
     return next;
 

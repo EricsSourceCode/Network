@@ -91,22 +91,20 @@ So Boolean false is not there in an extension.
 
 
 void CertExten::parseOneExten( const CharBuf&
-                            oneExtenSeqVal,
-                            CharBuf& statusBuf )
+                            oneExtenSeqVal )
 {
-StIO::putS( "\nparseOneExten top." );
+// StIO::putS( "\nparseOneExten top." );
 
-Int32 lastSeqVal = oneExtenSeqVal.getLast();
-StIO::printF( "lastSeqVal: " );
-StIO::printFD( lastSeqVal );
-StIO::putLF();
+// Int32 lastSeqVal = oneExtenSeqVal.getLast();
+// StIO::printF( "lastSeqVal: " );
+// StIO::printFD( lastSeqVal );
+// StIO::putLF();
 
 bool constructed = false;
 DerEncode derEncode;
 Int32 next = 0;
 next = derEncode.readOneTag( oneExtenSeqVal,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::ObjectIDTag )
@@ -128,7 +126,7 @@ bool critical = false;
 Uint8 boolCheck = oneExtenSeqVal.getU8( next );
 if( boolCheck == DerEncode::BooleanTag )
   {
-  StIO::putS( "Extension has a critical val." );
+  // StIO::putS( "Extension has a critical val." );
 
   // It is not supposed to be there if it
   // is the default value of false.
@@ -152,15 +150,14 @@ if( boolCheck == DerEncode::BooleanTag )
 
   next = derEncode.readOneTag(
                       oneExtenSeqVal,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
   CharBuf boolVal;
   derEncode.getValue( boolVal );
-  Int32 boolLen = boolVal.getLast();
-  StIO::printF( "Critical bool length: " );
-  StIO::printFD( boolLen );
-  StIO::putLF();
+  // Int32 boolLen = boolVal.getLast();
+  // StIO::printF( "Critical bool length: " );
+  // StIO::printFD( boolLen );
+  // StIO::putLF();
   Uint8 testBool = boolVal.getU8( 0 );
   if( testBool != 0 )
     critical = true;
@@ -169,8 +166,7 @@ if( boolCheck == DerEncode::BooleanTag )
 
 // Now get the buf data.
 derEncode.readOneTag( oneExtenSeqVal,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::OctetStringTag )
@@ -206,6 +202,12 @@ if( objIDOut.isEqual( subjectKeyIDObjID ))
 if( objIDOut.isEqual( subjectAltNameObjID ))
   {
   parseSubjectAltName( octetString, critical );
+  return;
+  }
+
+if( objIDOut.isEqual( issuerAltNameObjID ))
+  {
+  parseIssuerAltName( octetString, critical );
   return;
   }
 
@@ -286,11 +288,9 @@ if( critical )
 
 DerEncode derEncode;
 bool constructed = false;
-CharBuf statusBuf;
 
 derEncode.readOneTag( octetString,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -319,8 +319,7 @@ if( boolCheck == DerEncode::BooleanTag )
 
   next = derEncode.readOneTag(
                       seqData,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
   CharBuf boolVal;
   derEncode.getValue( boolVal );
@@ -355,8 +354,7 @@ else
 
 next = derEncode.readOneTag(
                       seqData,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::IntegerTag )
@@ -374,10 +372,10 @@ pathLength.setFromBigEndianCharBuf( numVal );
 if( !pathLength.isLong48())
   throw "pathLength is not a long.";
 
-Int64 pathLen = pathLength.getAsLong48();
-StIO::printF( "Path length: " );
-StIO::printFD( pathLen );
-StIO::putLF();
+// Int64 pathLen = pathLength.getAsLong48();
+// StIO::printF( "Path length: " );
+// StIO::printFD( pathLen );
+// StIO::putLF();
 }
 
 
@@ -431,8 +429,7 @@ bool constructed = false;
 CharBuf statusBuf;
 
 derEncode.readOneTag( octetString,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::BitStringTag )
@@ -450,9 +447,9 @@ derEncode.getValue( bitStrData );
 if( bitStrData.getLast() < 2 )
   throw "bitStrData length < 2";
 
-StIO::putS( "bitStrData:" );
-bitStrData.showHex();
-StIO::putLF();
+// StIO::putS( "bitStrData:" );
+// bitStrData.showHex();
+// StIO::putLF();
 
 DerBitStr derBitStr;
 derBitStr.setCharBuf( bitStrData );
@@ -490,21 +487,13 @@ if( critical )
   StIO::putS( "SubjectAltName is critical." );
   }
 
-// For testing:
-// CharBuf statusBuf2;
-// DerEncodeLoop derEncodeLoop;
-// derEncodeLoop.readAllTags( octetString, 0,
-//                             statusBuf2, 0 );
-// statusBuf2.showAscii();
-
 DerEncode derEncode;
 bool constructed = false;
 CharBuf statusBuf;
 
 // This is the one big outer sequence.
 derEncode.readOneTag( octetString,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -533,11 +522,10 @@ Int32 next = 0;
 // How many of these does it have?
 for( Int32 count = 0; count < 1000; count++ )
   {
-  StIO::putLF();
+  // StIO::putLF();
 
   next = derEncode.readOneTag( seqData,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
   if( next < 1 )
     {
@@ -545,37 +533,13 @@ for( Int32 count = 0; count < 1000; count++ )
     break;
     }
 
-  Uint32 tagType = derEncode.getTag();
-  StIO::printF( "contextSpecTagType: " );
-  StIO::printFD( tagType );
-  StIO::putLF();
-
   if( !derEncode.getIsContextSpec())
     throw "CertExten tag should be contextSpec.";
 
-  Uint32 oneSeqLength = derEncode.getLength();
-  StIO::printF( "oneSeqLength: " );
-  StIO::printFUD( oneSeqLength );
-  StIO::putLF();
+  CharBuf nameVal;
+  derEncode.getValue( nameVal );
 
-  CharBuf insideVal;
-  derEncode.getValue( insideVal );
-
-/*
-  DerEncode derEncodeInside;
-
-  derEncodeInside.readOneTag( insideVal,
-                      0, constructed,
-                      statusBuf, 0 );
-
-  tagType = derEncodeInside.getTag();
-
-  // This is an Integer.  It tells which of
-  // the enumerated values it is.
-  StIO::printF( "Integer tagType: " );
-  StIO::printFD( tagType );
-  StIO::putLF();
-*/
+  nameVal.showAscii();
   }
 
 
@@ -626,6 +590,88 @@ SEQUENCE SIZE (1..MAX) OF GeneralName
 
 */
 
+
+StIO::putS( "=============\n\n\n" );
+}
+
+
+
+void CertExten::parseIssuerAltName(
+                    const CharBuf& octetString,
+                    const bool critical )
+{
+// RFC 5280 Section 4.2.1.7.
+//  Issuer Alternative Name
+
+StIO::putS( "\n\n\n=============" );
+
+StIO::putS( "Top of Issuer Alt Name" );
+
+const Int32 last = octetString.getLast();
+if( last < 1 )
+  {
+  StIO::putS( "IssuerAltName: no data." );
+  return;
+  }
+
+if( critical )
+  {
+  StIO::putS( "IssuerAltName is critical." );
+  }
+
+DerEncode derEncode;
+bool constructed = false;
+CharBuf statusBuf;
+
+// This is the one big outer sequence.
+derEncode.readOneTag( octetString,
+                      0, constructed );
+
+if( derEncode.getTag() !=
+                   DerEncode::SequenceTag )
+  throw "IssuerAltName not a Sequence tag.";
+
+Uint32 seqLength = derEncode.getLength();
+if( seqLength < 1 )
+  {
+  StIO::putS( "IssuerAltName seqLength 0." );
+  return;
+  }
+
+CharBuf seqData;
+derEncode.getValue( seqData );
+
+const Int32 seqDataLast = seqData.getLast();
+
+
+StIO::printF( "seqDataLast: " );
+StIO::printFD( seqDataLast );
+StIO::putLF();
+
+Int32 next = 0;
+
+// How many of these does it have?
+for( Int32 count = 0; count < 1000; count++ )
+  {
+  // StIO::putLF();
+
+  next = derEncode.readOneTag( seqData,
+                      next, constructed );
+
+  if( next < 1 )
+    {
+    StIO::putS( "No more contextSpec tags." );
+    break;
+    }
+
+  if( !derEncode.getIsContextSpec())
+    throw "CertExten tag should be contextSpec.";
+
+  CharBuf nameVal;
+  derEncode.getValue( nameVal );
+
+  nameVal.showAscii();
+  }
 
 StIO::putS( "=============\n\n\n" );
 }

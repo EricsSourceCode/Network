@@ -57,8 +57,7 @@ CharBuf wholeCertBuf;
 
 Int32 status = derEncode.readOneTag(
                               certBuf, 0,
-                              constructed,
-                              statusBuf2, 0 );
+                              constructed );
 
 if( status < 0 )
   {
@@ -85,8 +84,7 @@ Int32 next = 0;
 
 // tbsCertificate
 next = derEncode.readOneTag( wholeCertBuf, next,
-                             constructed,
-                             statusBuf2, 0 );
+                             constructed );
 if( next < 0 )
   {
   StIO::putS( "Certificate.cpp error 1." );
@@ -97,9 +95,7 @@ derEncode.getValue( tbsCertBuf );
 
 // signatureAlgorithm
 next = derEncode.readOneTag( wholeCertBuf,
-                             next,
-                             constructed,
-                             statusBuf2, 0 );
+                             next, constructed );
 
 if( next < 0 )
   {
@@ -111,9 +107,7 @@ derEncode.getValue( sigAlgBuf );
 
 // signatureValue
 next = derEncode.readOneTag( wholeCertBuf,
-                             next,
-                             constructed,
-                             statusBuf2, 0 );
+                             next, constructed );
 if( next < 0 )
   {
   StIO::putS( "Certificate.cpp error 3." );
@@ -233,8 +227,7 @@ DerEncode derEncode;
 
 Int32 next = 0;
 next = derEncode.readOneTag( certBuf,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
 if( !constructed )
   throw
@@ -281,8 +274,7 @@ bool constructed = false;
 DerEncode derEncode;
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                      nextIn, constructed );
 
 CharBuf serNumVal;
 derEncode.getValue( serNumVal );
@@ -322,8 +314,7 @@ DerEncode derEncode;
 //  }
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                      nextIn, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -337,8 +328,7 @@ derEncode.getValue( algIDSeq );
 
 Int32 nextInner = 0;
 nextInner = derEncode.readOneTag( algIDSeq,
-                      nextInner, constructed,
-                      statusBuf, 0 );
+                  nextInner, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::ObjectIDTag )
@@ -384,8 +374,7 @@ StIO::putLF();
 
 // nextInner =
 derEncode.readOneTag( algIDSeq,
-                      nextInner, constructed,
-                      statusBuf, 0 );
+                 nextInner, constructed );
 
 // It depends on the algorithm if
 // there is a non null parameter.
@@ -420,8 +409,7 @@ bool constructed = false;
 DerEncode derEncode;
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                  nextIn, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -432,8 +420,7 @@ derEncode.getValue( seqOneVal );
 
 // next =
 derEncode.readOneTag( seqOneVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SetTag )
@@ -444,8 +431,7 @@ derEncode.getValue( setOneVal );
 
 // next =
 derEncode.readOneTag( setOneVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -457,8 +443,7 @@ derEncode.getValue( seqTwoVal );
 
 Int32 nextInner = derEncode.readOneTag(
                       seqTwoVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::ObjectIDTag )
@@ -480,8 +465,7 @@ StIO::putLF();
 // PrintableStringTag
 // Int32 nextInner =
 derEncode.readOneTag( seqTwoVal,
-                      nextInner, constructed,
-                      statusBuf, 0 );
+                 nextInner, constructed );
 
 if( derEncode.getTag() !=
               DerEncode::PrintableStringTag )
@@ -528,8 +512,7 @@ DerEncode derEncode;
 
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                      nextIn, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -540,8 +523,7 @@ derEncode.getValue( seqVal );
 
 Int32 nextInner = derEncode.readOneTag(
                       seqVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 // CAs conforming to this profile MUST
 // always encode certificate
@@ -572,8 +554,7 @@ StIO::putLF();
 
 // nextInner =
 derEncode.readOneTag( seqVal,
-                      nextInner, constructed,
-                      statusBuf, 0 );
+                  nextInner, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::UTCTimeTag )
@@ -609,8 +590,7 @@ DerEncode derEncode;
 
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                      nextIn, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -621,8 +601,7 @@ derEncode.getValue( seqOneVal );
 
 // next =
 derEncode.readOneTag( seqOneVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SetTag )
@@ -633,8 +612,7 @@ derEncode.getValue( setOneVal );
 
 // next =
 derEncode.readOneTag( setOneVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -646,8 +624,7 @@ derEncode.getValue( seqTwoVal );
 
 Int32 nextInner = derEncode.readOneTag(
                       seqTwoVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::ObjectIDTag )
@@ -669,8 +646,7 @@ StIO::putLF();
 // PrintableStringTag
 // Int32 nextInner =
 derEncode.readOneTag( seqTwoVal,
-                      nextInner, constructed,
-                      statusBuf, 0 );
+                 nextInner, constructed );
 
 // if( derEncode.getTag() !=
 //               DerEncode::PrintableStringTag )
@@ -709,8 +685,7 @@ bool constructed = false;
 DerEncode derEncode;
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                  nextIn, constructed );
 
 if( next < 0 )
   {
@@ -728,8 +703,7 @@ derEncode.getValue( seqOneVal );
 
 Int32 nextSeq = derEncode.readOneTag(
                       seqOneVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::SequenceTag )
@@ -741,8 +715,7 @@ derEncode.getValue( seqTwoVal );
 
 Int32 nextInner = derEncode.readOneTag(
                       seqTwoVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::ObjectIDTag )
@@ -782,8 +755,7 @@ StIO::putLF();
 
 // nextInner =
 derEncode.readOneTag( seqTwoVal,
-                      nextInner, constructed,
-                      statusBuf, 0 );
+                   nextInner, constructed );
 
 // It depends on the algorithm if
 // there is a non null parameter.
@@ -803,8 +775,7 @@ else
 
 // nextSeq =
 derEncode.readOneTag( seqOneVal,
-                      nextSeq, constructed,
-                      statusBuf, 0 );
+                      nextSeq, constructed );
 
 if( derEncode.getTag() !=
                    DerEncode::BitStringTag )
@@ -870,8 +841,7 @@ bool constructed = false;
 DerEncode derEncode;
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                      nextIn, constructed );
 
 if( next < 0 )
   {
@@ -894,8 +864,7 @@ if( (uniqueIDCheck &
   }
 
 next = derEncode.readOneTag( certBuf,
-                      next, constructed,
-                      statusBuf, 0 );
+                      next, constructed );
 
 if( next < 0 )
   {
@@ -953,8 +922,7 @@ bool constructed = false;
 DerEncode derEncode;
 
 Int32 next = derEncode.readOneTag( certBuf,
-                      nextIn, constructed,
-                      statusBuf, 0 );
+                      nextIn, constructed );
 
 if( next < 0 )
   {
@@ -975,8 +943,7 @@ StIO::putLF();
 // The outer sequence:
 // Int32 next =
 derEncode.readOneTag( extenWrapVal,
-                      0, constructed,
-                      statusBuf, 0 );
+                      0, constructed );
 
 CharBuf outerSeqVal;
 derEncode.getValue( outerSeqVal );
@@ -994,8 +961,7 @@ for( Int32 count = 0; count < 1000; count++ )
   {
   nextExten = derEncode.readOneTag(
                           outerSeqVal,
-                          nextExten, constructed,
-                          statusBuf, 0 );
+                    nextExten, constructed );
 
   if( nextExten < 0 )
     {
@@ -1012,8 +978,7 @@ for( Int32 count = 0; count < 1000; count++ )
 
   CharBuf oneExtenSeqVal;
   derEncode.getValue( oneExtenSeqVal );
-  certExten.parseOneExten( oneExtenSeqVal,
-                           statusBuf );
+  certExten.parseOneExten( oneExtenSeqVal );
   }
 
 // Nothing comes after extensions.

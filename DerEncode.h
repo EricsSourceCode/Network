@@ -128,10 +128,7 @@ class DerEncode
 
   Int32 readOneTag( const CharBuf& cBuf,
                     const Int32 where,
-                    bool& constructed,
-                    CharBuf& statusBuf,
-                    // Uint16Buf& u16Buf,
-                    const Int32 level );
+                    bool& constructed );
 
   void showTag( Uint32 fullTagByte,
                 Uint32 tagByte,
